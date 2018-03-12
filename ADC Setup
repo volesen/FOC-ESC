@@ -1,0 +1,9 @@
+void ADC0_InitSWTriggerSeq3_Ch9(void){ volatile undigned long delay;
+SYSCTL_RCGC2_R |= 0X00000010;       //Enable clock for Port E
+delay = SYSCTL_RCGC2_R;
+GPIO_PORTE_DIR_R &= ~0x04;          //Make PE2 a input
+GPIO_PORTE_AFSEL_R |= 0x04;         //Set PE2 to alternate function aka. Analog input
+GPIO_PORTE_DEN_R &= ~0x04;          //Disable digital enable aka. digital I/O on port PE2
+
+
+}
