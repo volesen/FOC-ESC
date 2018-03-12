@@ -1,9 +1,11 @@
 #include "PID_Controller.hpp"
 #include <iostream>
+#include <stdint.h>
+
 using namespace std;
 
 //Constructor
-PID_Controller::PID_Controller(float P, float I, float D, float i_max_change, int d_window_fast, int d_window_slow)
+PID_Controller::PID_Controller(float32_t P, float32_t I, float32_t D, float32_t i_max_change, int32_t d_window_fast, int32_t32_t d_window_slow)
 {
     p = P;
     i = I;
@@ -37,9 +39,9 @@ PID_Controller::PID_Controller(float P, float I, float D, float i_max_change, in
 
     error_iteration = 0;
 
-    errors = new float[error_rolling_window_slow];
+    errors = new float32_t[error_rolling_window_slow];
     //There has to be a better way to initialize to 0
-    for (int i = 0; i < error_rolling_window_slow; i++)  
+    for (int32_t i = 0; i < error_rolling_window_slow; i++)  
         errors[i] = 0.0f;
 }
 
@@ -50,9 +52,9 @@ PID_Controller::~PID_Controller()
 }
 
 //Methods
-float PID_Controller::update(float measurement, float reference)
+float32_t PID_Controller::update(float32_t measurement, float32_t reference)
 {
-    float error = measurement - reference;
+    float32_t error = measurement - reference;
     
     //Calculate p_term
     p_term = -error * p;
@@ -72,7 +74,7 @@ float PID_Controller::update(float measurement, float reference)
     //This will cause the d_term contribution to be small
     
     //Update new error window sum
-    int error_iteration_limit_new = error_iteration - error_rolling_window_fast < 0 
+    int32_t error_iteration_limit_new = error_iteration - error_rolling_window_fast < 0 
                                     ? error_rolling_window_slow + error_iteration - error_rolling_window_fast
                                     : error_iteration - error_rolling_window_fast;
 
