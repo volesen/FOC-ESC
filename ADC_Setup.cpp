@@ -12,9 +12,13 @@ void ADC0_InitSWTriggerSeq3_Ch9(void){ volatile unsigned long delay;
   SYSCTL_RCGC0_R &= ~0x00000300;  // Set sample sequencer for 125k samples a sec
   ADC0_SSPRI_R = 0x0123;          // Set sequencer 3 for highest priority
   ADC0_ACTSS_R &= ~0x0008;        // Disable sample sequencer 3 during setup
-  ADC0_EMUX_R &= ~0xF000;         // Set sequencer 3 for software trigger
+  ADC0_EMUX_R = (0xF<<12);        // Set sequencer 3 for always on
   ADC0_SSMUX3_R &= ~0x000F;       // Clear SS3 bits
   ADC0_SSMUX3_R += 1;             // Set input to "Ain1" (PE2)
   ADC0_SSCTL3_R = 0x0006;         // 12) Set sample 1 as end bit, and enable interrupts
   ADC0_ACTSS_R |= 0x0008;         // 13) Enable sample sequencer 3 again
+}
+
+int main(){
+ADC0_InitSWTriggerSeq3_Ch9;
 }
