@@ -1,46 +1,55 @@
-//Values from ADC 0/1
-int ADC0_A;
-int ADC0_B;
-int ADC1_A;
-int ADC1_B;
+#include <tm4c123gh6pm.h>;
+#include <stdint.h>;
+#include <arm_math.h>;
 
-//Motor 1 wire current
-int M1A;
-int M1B;
-int M1C;
+volatile unsigned long delay;
 
-//Motor 2 wire current
-int M2A;
-int M2B;
-int M2C;
+float32_t ADC_Resolution = 0.0008;
+float32_t M0Current = 0;
+float32_t M1Current = 0;
+float8_t  ADC0Result = 0;
+float8_t  ADC1Result = 0;
 
-//Motor wire current multiplication factor
-int Motor1Multiply;
-int Motor2Multiply;
-
-//Resolution of ADC conversion
-float ADC_Resolution;
-
-//Read values from AD conversion register FIFOn
-
-//Calculate current in wire A
-if(ADC0_A >=0){
-    ADC0_A = ADC0_A*ADC_Resolution;
-
-    M1A = ADC0_A/Motor1Multiply;
-
-    if(ADC1_A >= 0){
-        M1B = M1A;
-        M1C = 0;
-        } else {
-        M1C = M1A;
-        M1B = 0;    
-        }   
-
-    } else {
-        M1A = 0;
-        ADC1_A = ADC1_A*ADC_Resolution;
-        M1B = ADC1_A/Motor1Multiply;
-        M1C = M1B;     
+void ADC_Init(){
+  //Initialize port PE1 and PE2 for ADC input
+  SYSCTL_RCGC2_R |= 0x10;               // Enable clock for Port E
+  delay = SYSCTL_RCGC2_R;               // Clock stabilization time
+  GPIO_PORTE_DIR_R &= ~0x2;             // Define PE1 and PE2 as inputs
+  GPIO_PORTE_AFSEL_R |= 0x2;            // Set PE1 and PE2 to "alternate function" aka. Analog
+  GPIO_PORTE_DEN_R &= ~0x2;             // Disable digital on PE1 and PE2
+  GPIO_PORTE_AMSEL_R |= 0x2;            // Enable analog functions on PE1 and PE2
+  SYSCTL_RCGC0_R |= 0x30000;            // Enable ADC 1 and 2
+  delay = SYSCTL_RCGC2_R;
+  
+  //ADC0 Setup using pin PE1        
+  SYSCTL_RCGC0_R &= ~0x300;             // Set sample sequencer for 125k samples a sec
+  ADC0_SSPRI_R = 0x123;                 // Set sequencer 3 for highest priority
+  ADC0_ACTSS_R &= ~0x8;                 // Disable sample sequencer 3 during setup
+  ADC0_EMUX_R = (0xF<<12);              // Set sequencer 3 for always on
+  ADC0_SSMUX3_R &= ~0xF;                // Clear SS3 bits
+  ADC0_SSMUX3_R += 2;                   // Set input to "Ain2" (PE1)
+  ADC0_SSCTL3_R = 0x6;                  // Set sample 1 as end bit, and enable interrupts
+  ADC0_ACTSS_R |= 0x8;                  // Enable sample sequencer 3 again
+  
+  //ADC1 Setup using pin PE2
+  SYSCTL_RCGC0_R &= ~0xc00;             // Set sample sequencer for 125k samples a sec
+  ADC1_SSPRI_R = 0x123;                 // Set sequencer 3 for highest priority
+  ADC1_ACTSS_R &= ~0x8;                 // Disable sample sequencer 3 during setup
+  ADC1_EMUX_R = (0xF<<12);              // Set sequencer 3 for always on
+  ADC1_SSMUX3_R &= ~0xF;                // Clear SS3 bits
+  ADC1_SSMUX3_R += 1;                   // Set input to "Ain1" (PE2)
+  ADC1_SSCTL3_R = 0x6;                  // Set sample 1 as end bit, and enable interrupts
+  ADC1_ACTSS_R |= 0x8;                  // Enable sample sequencer 3 again
 }
 
+int main(){
+ADC_Init();
+}
+
+/* 
+//Current interrupt sequence [Ideas only]
+
+M0Current = ADC_Resolution * ADC0Result;
+
+M1Current = ADC_Resolution * ADC1Result;
+*/
