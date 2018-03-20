@@ -7,8 +7,6 @@ volatile unsigned long delay;
 float32_t ADC_Resolution = 0.0008;
 float32_t M0Current = 0;
 float32_t M1Current = 0;
-float8_t  ADC0Result = 0;
-float8_t  ADC1Result = 0;
 
 void ADC_Init(){
   //Initialize port PE1 and PE2 for ADC input
@@ -30,6 +28,8 @@ void ADC_Init(){
   ADC0_SSMUX3_R += 2;                   // Set input to "Ain2" (PE1)
   ADC0_SSCTL3_R = 0x6;                  // Set sample 1 as end bit, and enable interrupts
   ADC0_ACTSS_R |= 0x8;                  // Enable sample sequencer 3 again
+  ADC0_PSSI_R |= (1<<3);                // Set SS3 bit
+  ADC0_PSSI_R |= (1<<27);               // Set SYNCWAIT bit for synchronized ADC's
   
   //ADC1 Setup using pin PE2
   SYSCTL_RCGC0_R &= ~0xc00;             // Set sample sequencer for 125k samples a sec
@@ -40,16 +40,27 @@ void ADC_Init(){
   ADC1_SSMUX3_R += 1;                   // Set input to "Ain1" (PE2)
   ADC1_SSCTL3_R = 0x6;                  // Set sample 1 as end bit, and enable interrupts
   ADC1_ACTSS_R |= 0x8;                  // Enable sample sequencer 3 again
+  ADC1_PSSI_R |= (1<<3);                // Set SS3 bit
+  ADC1_PSSI_R |= (1<<27);               // Set SYNCWAIT bit for synchronized ADC's
+
+  //Set ADC's to run synchronous
+  ADC0_PSSI_R |= (1<<31);               //ADC0 GSYNC run
+  ADC1_PSSI_R |= (1<<31);               //ADC1 GSYNC run
 }
 
 int main(){
-ADC_Init();
+  //Initialize ADC's
+  ADC_Init();
+
+  //Read data from ADC0 and convert to Voltage
+  if(ADC0_RIS_R&0x08==1){
+    M0Current = ADC0_SSFIFO3_R&0xFFF * ADC_Resolution;
+    ADC0_ISC_R = 0x0008;
+  }
+
+  //Read data from ADC1 and convert to Voltage
+  if(ADC1_RIS_R&0x08==1){
+    M1Current = ADC1_SSFIFO3_R&0xFFF * ADC_Resolution;
+    ADC1_ISC_R = 0x0008;
+  }
 }
-
-/* 
-//Current interrupt sequence [Ideas only]
-
-M0Current = ADC_Resolution * ADC0Result;
-
-M1Current = ADC_Resolution * ADC1Result;
-*/
