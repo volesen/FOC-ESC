@@ -1,7 +1,9 @@
-#include "PID_Controller.hpp"
+#define ARM_MATH_CM4
+#define __FPU_PRESENT 1U
+#include <arm_math.h>
 #include <stdint.h>
 
-using namespace std;
+#include "PID_Controller.hpp"
 
 //Constructor
 PID_Controller::PID_Controller(float32_t p, float32_t i, float32_t i, float32_t i_max_change_per_cycle, int32_t d_window_fast, int32_t32_t d_window_slow)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <arm_math.h>
 #include <stdint.h>
 
 class PID_Controller 
