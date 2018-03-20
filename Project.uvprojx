@@ -386,14 +386,14 @@
               <FilePath>C:\ti\TivaWare_C_Series-2.1.4.178\driverlib\rvmdk\driverlib.lib</FilePath>
             </File>
             <File>
-              <FileName>blinky.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>.\blinky.cpp</FilePath>
-            </File>
-            <File>
               <FileName>Motor.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>.\Motor.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>main.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main.cpp</FilePath>
             </File>
           </Files>
         </Group>
