@@ -320,7 +320,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>1</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
@@ -333,7 +333,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--exceptions</MiscControls>
               <Define>rvmdk PART_TM4C123GH6PM TARGET_IS_BLIZZARD_RB1</Define>
               <Undefine></Undefine>
               <IncludePath>C:\ti\TivaWare_C_Series-2.1.4.178</IncludePath>
@@ -386,14 +386,14 @@
               <FilePath>C:\ti\TivaWare_C_Series-2.1.4.178\driverlib\rvmdk\driverlib.lib</FilePath>
             </File>
             <File>
-              <FileName>Motor.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>.\Motor.cpp</FilePath>
-            </File>
-            <File>
               <FileName>main.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>.\main.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Motor.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\Motor.cpp</FilePath>
             </File>
           </Files>
         </Group>
