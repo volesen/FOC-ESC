@@ -1,6 +1,8 @@
 #define ARM_MATH_CM4
 #define __FPU_PRESENT 1U
 
+#define PWM_TICKS 1024
+
 #include <arm_math.h>
 #include <stdint.h>
 
@@ -8,7 +10,6 @@
 #include "inc/hw_types.h"
 #include "inc/hw_gpio.h"
 
-#include "Motor.hpp"
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h" 
 #include "driverlib/pwm.h" 
@@ -17,20 +18,38 @@
 
 #include "TM4C123GH6PM.h"
 
+#include "Motor.hpp"
+
 ///====================================================================================
 ///motor_pwm definition
 ///====================================================================================
-motor_pwm::motor_pwm(float32_t A, float32_t B, float32_t C)
+motor_pwm::motor_pwm(const float32_t &A, const float32_t &B, const float32_t &C)
     : A(A), B(B), C(C) { }
 
-//Scales to a 10-bit value
-motor_pwm motor_pwm::get_scaled() const {
-    //Find maximum output
+//Returns the largest pwm phase magnitude
+float32_t motor_pwm::get_max() const
+{
+    float32_t max = A < 0 ? -A : A;
 
-    //outputs.A =
+    //If B is larger than C then check if magnitude of B is larger than max
+    if (B > C && ((B < 0 ? -B : B) > max))
+        max = B;
+    //Else check if magnitude of C is larger than max
+    else if ((C < 0 ? -C : C) > max)
+        max = C;
 
-    //Finish this function
-    return motor_pwm(0, 0, 0);
+    return max;
+}
+
+//Scales to a 10-bit+1 value
+motor_pwm motor_pwm::get_scaled(const float32_t &bound_max) const 
+{
+    static float32_t range_shifter = PWM_TICKS / 2;
+    float32_t scaler = PWM_TICKS / bound_max / 2;
+
+    return motor_pwm(A * scaler + range_shifter, 
+                     B * scaler + range_shifter, 
+                     C * scaler + range_shifter);
 }
 
 
@@ -53,7 +72,18 @@ void Motor0::initialize()
         throw 0;
 
     //Default values for Motor0 phases (pins B6, B7, B4)
+
+
+
+
+
     //TODO: change all TO 0
+
+
+
+
+
+
     _pwm = motor_pwm(511, 255, 127); //Initialize to no duty cycle (0 value)
 
     //Set the PWM clock to be the system clock divided by 4
@@ -89,9 +119,9 @@ void Motor0::initialize()
     PWMGenConfigure(PWM0_BASE, PWM_GEN_1, 
                     PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
 
-    //Set the period to 1023 ticks (40MHz (System clock) / 1 (PWM divider) / (1023 + 1) = 39062,5 Hz)
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 1023);
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, 1023);
+    //Set the period to 1024 ticks (40MHz (System clock) / 1 (PWM divider) / (1024 + 1) = 39024,3902... Hz)
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, PWM_TICKS);
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, PWM_TICKS);
 
     //Set pulse widths to default values
     update_pwm();
@@ -109,9 +139,9 @@ void Motor0::initialize()
 
 void Motor0::update_pwm()
 {
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, _pwm.A);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, _pwm.B);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, _pwm.C);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, (uint16_t)_pwm.A);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, (uint16_t)_pwm.B);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, (uint16_t)_pwm.C);
 }
 
 motor_pwm Motor0::get_pwm()
@@ -127,7 +157,14 @@ void Motor0::set_pwm(const motor_pwm &pwm)
     if (!_initialized)
         throw 0;
     else
-        _pwm = pwm.get_scaled();
+    {
+        float32_t max = pwm.get_max();
+
+        if (max > _pwm_max_bound)
+            _pwm_max_bound = max;
+
+        _pwm = pwm.get_scaled(_pwm_max_bound);
+    }
 
     update_pwm();
 }
@@ -191,9 +228,9 @@ void Motor1::initialize()
     PWMGenConfigure(PWM0_BASE, PWM_GEN_2, 
                     PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
 
-    //Set the period to 1023 ticks (40MHz (System clock) / 1 (PWM divider) / (1023 + 1) = 39062,5 Hz)
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, 1023);
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_2, 1023);
+    //Set the period to 1024 ticks (40MHz (System clock) / 1 (PWM divider) / (1024 + 1) = 39024,3902... Hz)
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, PWM_TICKS);
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_2, PWM_TICKS);
     
     //Set pulse widths to default values
     update_pwm();
@@ -211,9 +248,9 @@ void Motor1::initialize()
 
 void Motor1::update_pwm()
 {
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3, _pwm.A);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_4, _pwm.B);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5, _pwm.C);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3, (uint16_t)_pwm.A);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_4, (uint16_t)_pwm.B);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5, (uint16_t)_pwm.C);
 }
 
 motor_pwm Motor1::get_pwm()
@@ -229,7 +266,14 @@ void Motor1::set_pwm(const motor_pwm &pwm)
     if (!_initialized)
         throw 0;
     else
-        _pwm = pwm.get_scaled();
+    {
+        float32_t max = pwm.get_max();
+
+        if (max > _pwm_max_bound)
+            _pwm_max_bound = max;
+
+        _pwm = pwm.get_scaled(_pwm_max_bound);
+    }
 
     update_pwm();
 }

@@ -8,9 +8,10 @@ struct motor_pwm
 {
 	float32_t A, B, C;
 	
-	motor_pwm(float32_t A = 0, float32_t B = 0, float32_t C = 0);
+	motor_pwm(const float32_t &A = 0, const float32_t &B = 0, const float32_t &C = 0);
 
-    motor_pwm get_scaled() const;      //Return scaled outputs within valid PWM ranges
+    float32_t get_max() const;
+    motor_pwm get_scaled(const float32_t &bound_max) const;      //Return scaled outputs within valid PWM ranges
 };
 
 class IMotor
@@ -22,6 +23,7 @@ class IMotor
 		
         static bool _initialized;
         motor_pwm _pwm;
+        float32_t _pwm_max_bound;
 
         virtual void update_pwm() = 0;
 
@@ -42,6 +44,7 @@ class Motor0 : public IMotor
 
         static bool _initialized;
         motor_pwm _pwm;
+        float32_t _pwm_max_bound;
 		
         virtual void update_pwm(); //Updates the PWM output at the motor pins
         
@@ -63,6 +66,7 @@ class Motor1 : public IMotor
 
         static bool _initialized;
         motor_pwm _pwm;
+        float32_t _pwm_max_bound;
 		
         virtual void update_pwm(); //Updates the PWM output at the motor pins
 
