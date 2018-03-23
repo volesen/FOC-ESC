@@ -1,6 +1,6 @@
 #define __FPU_PRESENT 1U
 #define ARM_MATH_CM4
-#include <arm_math.h>;
+#include <arm_math.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,41 +24,41 @@ int32_t result;
 int main()
 {
 	uint32_t ui32Value;
-	result = 0;
 	
-	SysCtlClockSet(SYSCTL_SYSDIV_10 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
-	// // Enable the ADC0 module. 
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
-	 
-	// Wait for the ADC0 module to be ready. 
-	 
-	while(!SysCtlPeripheralReady(SYSCTL_PERIPH_ADC0)) { }
-	 
-	// Enable the first sample sequencer to capture the value of channel 0 when 
-	// the processor trigger occurs. 
-	 
-	ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_PROCESSOR, 0); ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_IE | ADC_CTL_END | ADC_CTL_CH0); ADCSequenceEnable(ADC0_BASE, 0);
-	 
-	// Trigger the sample sequence. 
-	 
-	ADCProcessorTrigger(ADC0_BASE, 0);
+// Enable the ADC0 module.
+	
+SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
+	
+// Wait for the ADC0 module to be ready. 
+	
+while(!SysCtlPeripheralReady(SYSCTL_PERIPH_ADC0)) { }
 
-	// Wait until the sample sequence has completed. 
-	 
-	while(!ADCIntStatus(ADC0_BASE, 0, false)) { }
+// Enable the first sample sequencer to capture the value of channel 0 when the processor trigger occurs. 
 
-	// Read the value from the ADC. 
+ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_ALWAYS, 0); 
+ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_IE | ADC_CTL_END | ADC_CTL_CH0); 
+ADCSequenceEnable(ADC0_BASE, 0);
 
-	int32_t result = ADCSequenceDataGet(ADC0_BASE, 0, &ui32Value);
-	result += 1;
+/*
+// Trigger the sample sequence. 
+
+ADCProcessorTrigger(ADC0_BASE, 0);
+*/
+// Wait until the sample sequence has completed.
+
+while(!ADCIntStatus(ADC0_BASE, 0, false)) { }
+
+// Read the value from the ADC.
+
+ADCSequenceDataGet(ADC0_BASE, 0, &ui32Value);
 	
 	int32_t i = 0;
 	while(1) 
 	{
-		i += 1;
+
 	}
 }
+
 
 /*
 volatile unsigned long delay;
