@@ -19,53 +19,7 @@
 
 #include "TM4C123GH6PM.h"
 
-int32_t result;
-
-int main()
-{
-	uint32_t ui32Value;
-	
-// Enable the ADC0 module.
-	
-SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
-	
-// Wait for the ADC0 module to be ready. 
-	
-while(!SysCtlPeripheralReady(SYSCTL_PERIPH_ADC0)) { }
-
-// Enable the first sample sequencer to capture the value of channel 0 when the processor trigger occurs. 
-
-ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_ALWAYS, 0); 
-ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_IE | ADC_CTL_END | ADC_CTL_CH0); 
-ADCSequenceEnable(ADC0_BASE, 0);
-
-/*
-// Trigger the sample sequence. 
-
-ADCProcessorTrigger(ADC0_BASE, 0);
-*/
-// Wait until the sample sequence has completed.
-
-while(!ADCIntStatus(ADC0_BASE, 0, false)) { }
-
-// Read the value from the ADC.
-
-ADCSequenceDataGet(ADC0_BASE, 0, &ui32Value);
-	
-	int32_t i = 0;
-	while(1) 
-	{
-
-	}
-}
-
-
-/*
 volatile unsigned long delay;
-
-float32_t ADC_Resolution = 0.0008;
-float32_t M0Current = 0;
-float32_t M1Current = 0;
 
 void ADC_Init(){
   //Initialize port PE1 and PE2 for ADC input
@@ -110,17 +64,4 @@ void ADC_Init(){
 int main(){
   //Initialize ADC's
   ADC_Init();
-
-  //Read data from ADC0 and convert to Voltage
-  if(ADC0_RIS_R&0x08==1){
-    M0Current = ADC0_SSFIFO3_R&0xFFF * ADC_Resolution;
-    ADC0_ISC_R = 0x0008;
-  }
-
-  //Read data from ADC1 and convert to Voltage
-  if(ADC1_RIS_R&0x08==1){
-    M1Current = ADC1_SSFIFO3_R&0xFFF * ADC_Resolution;
-    ADC1_ISC_R = 0x0008;
-  }
 }
-*/
