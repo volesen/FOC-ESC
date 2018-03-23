@@ -14,67 +14,69 @@ struct motor_pwm
     motor_pwm get_scaled(const float32_t &bound_max) const;      //Return scaled outputs within valid PWM ranges
 };
 
-class Motor
+// class Motor
+// {
+//     protected:
+//         Motor() {}
+//         Motor(Motor const &);
+//         Motor& operator=(const Motor &);
+		
+//         static bool _initialized;
+//         motor_pwm _pwm;
+//         float32_t _pwm_max_bound;
+
+//         virtual void update_pwm() = 0;
+
+// 	public:
+//         //Methods
+//         virtual void initialize() = 0;
+
+//         virtual motor_pwm get_pwm();
+//         virtual void set_pwm(const motor_pwm &pwm);
+// };
+
+class Motor0 //: public Motor
 {
     protected:
-        Motor() {}
-        Motor(Motor const &);
-        void operator=(Motor const &);
-		
+        //Motor0(Motor0 const &);
+        //Motor0& operator=(const Motor0&);
+
         static bool _initialized;
         motor_pwm _pwm;
         float32_t _pwm_max_bound;
-
-        virtual void update_pwm() = 0;
-
-	public:
-        //Methods
-        virtual void initialize() = 0;
-
-        virtual motor_pwm get_pwm();
-        virtual void set_pwm(const motor_pwm &pwm);
-};
-
-class Motor0 : public Motor
-{
-    protected:
-        Motor0() {}
-        Motor0(Motor0 const &);
-        void operator=(Motor0 const &);
-
-        // static bool _initialized;
-        // motor_pwm _pwm;
-        // float32_t _pwm_max_bound;
 		
-        virtual void update_pwm(); //Updates the PWM output at the motor pins
+        void update_pwm(); //Updates the PWM output at the motor pins
         
     public:
-        //Methods
-        static Motor0& get_motor();
-        virtual void initialize();
+			//TODO:MOVE THIS BACK?
+        Motor0() {}
 
-        //virtual motor_pwm get_pwm();
-        //virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
+        //Methods
+        //static Motor0& get_motor();
+        void initialize();
+
+        motor_pwm get_pwm();
+        void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
 };
 
-class Motor1 : public Motor
-{
-    protected:
-        Motor1() {}
-        Motor1(Motor0 const &);
-        void operator=(Motor1 const &);
+// class Motor1 : public Motor
+// {
+//     protected:
+//         Motor1() {}
+//         Motor1(Motor0 const &);
+//         Motor1& operator=(const Motor1 &);
 
-        // static bool _initialized;
-        // motor_pwm _pwm;
-        // float32_t _pwm_max_bound;
+//         // static bool _initialized;
+//         // motor_pwm _pwm;
+//         // float32_t _pwm_max_bound;
 		
-        virtual void update_pwm(); //Updates the PWM output at the motor pins
+//         virtual void update_pwm(); //Updates the PWM output at the motor pins
 
-    public:
-        //Methods
-        static Motor1& get_motor();
-        virtual void initialize();
+//     public:
+//         //Methods
+//         static Motor1& get_motor();
+//         virtual void initialize();
 
-        //virtual motor_pwm get_pwm();
-        //virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
-};
+//         //virtual motor_pwm get_pwm();
+//         //virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
+// };
