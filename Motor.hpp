@@ -14,12 +14,12 @@ struct motor_pwm
     motor_pwm get_scaled(const float32_t &bound_max) const;      //Return scaled outputs within valid PWM ranges
 };
 
-class IMotor
+class Motor
 {
     protected:
-        IMotor() {}
-        IMotor(IMotor const &);
-        void operator=(IMotor const &);
+        Motor() {}
+        Motor(Motor const &);
+        void operator=(Motor const &);
 		
         static bool _initialized;
         motor_pwm _pwm;
@@ -31,20 +31,20 @@ class IMotor
         //Methods
         virtual void initialize() = 0;
 
-        virtual motor_pwm get_pwm() = 0;
-        virtual void set_pwm(const motor_pwm &pwm) = 0;
+        virtual motor_pwm get_pwm();
+        virtual void set_pwm(const motor_pwm &pwm);
 };
 
-class Motor0 : public IMotor
+class Motor0 : public Motor
 {
     protected:
         Motor0() {}
         Motor0(Motor0 const &);
         void operator=(Motor0 const &);
 
-        static bool _initialized;
-        motor_pwm _pwm;
-        float32_t _pwm_max_bound;
+        // static bool _initialized;
+        // motor_pwm _pwm;
+        // float32_t _pwm_max_bound;
 		
         virtual void update_pwm(); //Updates the PWM output at the motor pins
         
@@ -53,20 +53,20 @@ class Motor0 : public IMotor
         static Motor0& get_motor();
         virtual void initialize();
 
-        virtual motor_pwm get_pwm();
-        virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
+        //virtual motor_pwm get_pwm();
+        //virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
 };
 
-class Motor1 : public IMotor
+class Motor1 : public Motor
 {
     protected:
         Motor1() {}
         Motor1(Motor0 const &);
         void operator=(Motor1 const &);
 
-        static bool _initialized;
-        motor_pwm _pwm;
-        float32_t _pwm_max_bound;
+        // static bool _initialized;
+        // motor_pwm _pwm;
+        // float32_t _pwm_max_bound;
 		
         virtual void update_pwm(); //Updates the PWM output at the motor pins
 
@@ -75,6 +75,6 @@ class Motor1 : public IMotor
         static Motor1& get_motor();
         virtual void initialize();
 
-        virtual motor_pwm get_pwm();
-        virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
+        //virtual motor_pwm get_pwm();
+        //virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to set_pwm
 };

@@ -33,6 +33,8 @@ main(void)
 	//Sets the MCU to run at 40MHz according to peripheral driver library
 	SysCtlClockSet(SYSCTL_SYSDIV_5|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
 
+	
+
 	// SysCtlPWMClockSet(SYSCTL_PWMDIV_64);
 	
 	// //Enable PWM module 0

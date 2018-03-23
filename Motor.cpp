@@ -54,10 +54,38 @@ motor_pwm motor_pwm::get_scaled(const float32_t &bound_max) const
 
 
 ///====================================================================================
+///Motor definition
+///====================================================================================
+bool Motor::_initialized = false;
+
+motor_pwm Motor::get_pwm()
+{
+    if (!_initialized)
+        throw 0;
+    else
+        return _pwm;
+}
+
+void Motor::set_pwm(const motor_pwm &pwm)
+{
+    if (!_initialized)
+        throw 0;
+    else
+    {
+        float32_t max = pwm.get_max();
+
+        if (max > _pwm_max_bound)
+            _pwm_max_bound = max;
+
+        _pwm = pwm.get_scaled(_pwm_max_bound);
+    }
+
+    update_pwm();
+}
+
+///====================================================================================
 ///Motor0 definition
 ///====================================================================================
-bool Motor0::_initialized = false;
-
 Motor0& Motor0::get_motor()
 {
     static Motor0 motor;
@@ -144,37 +172,10 @@ void Motor0::update_pwm()
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, (uint16_t)_pwm.C);
 }
 
-motor_pwm Motor0::get_pwm()
-{
-    if (!_initialized)
-        throw 0;
-    else
-        return _pwm;
-}
-
-void Motor0::set_pwm(const motor_pwm &pwm)
-{
-    if (!_initialized)
-        throw 0;
-    else
-    {
-        float32_t max = pwm.get_max();
-
-        if (max > _pwm_max_bound)
-            _pwm_max_bound = max;
-
-        _pwm = pwm.get_scaled(_pwm_max_bound);
-    }
-
-    update_pwm();
-}
-
 
 ///====================================================================================
 ///Motor1 definition
 ///====================================================================================
-bool Motor1::_initialized = false;
-
 Motor1& Motor1::get_motor()
 {
     static Motor1 motor;
@@ -251,29 +252,4 @@ void Motor1::update_pwm()
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3, (uint16_t)_pwm.A);
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_4, (uint16_t)_pwm.B);
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5, (uint16_t)_pwm.C);
-}
-
-motor_pwm Motor1::get_pwm()
-{
-    if (!_initialized)
-        throw 0;
-    else
-        return _pwm;
-}
-
-void Motor1::set_pwm(const motor_pwm &pwm)
-{
-    if (!_initialized)
-        throw 0;
-    else
-    {
-        float32_t max = pwm.get_max();
-
-        if (max > _pwm_max_bound)
-            _pwm_max_bound = max;
-
-        _pwm = pwm.get_scaled(_pwm_max_bound);
-    }
-
-    update_pwm();
 }
