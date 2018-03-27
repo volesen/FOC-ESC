@@ -1,19 +1,14 @@
-#define ARM_MATH_CM4
-#define __FPU_PRESENT 1U
-#include <arm_math.h>
-#include <stdint.h>
-
-#include "PID_Controller.hpp"
+#include "PID.hpp"
 
 //Constructor
-PID_Controller::PID_Controller(float32_t p, float32_t i, float32_t i, float32_t i_max_change_per_cycle, int32_t d_window_fast, int32_t32_t d_window_slow)
+PID_Controller::PID_Controller(float32_t p, float32_t i, float32_t d, float32_t i_max_change_per_cycle, int32_t d_window_fast, int32_t d_window_slow)
     : p(p), i(i), d(d)
     , p_term(0), i_term(0), d_term(0)
     , i_max_change_per_cycle(i_max_change_per_cycle)
     , error_sum_fast(0), error_sum_slow(0)
     , error_iteration(0)
 {
-    //We need to agree on how to handle errors
+    //TODO:We need to agree on how to handle errors
     //Do we guess and correct them? Or do we crash everything? I prefer crash.
     if (d_window_fast >= d_window_slow ||
         d_window_fast < 1 ||

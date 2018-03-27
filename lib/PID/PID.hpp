@@ -1,7 +1,9 @@
 #pragma once
 
-#include <arm_math.h>
-#include <stdint.h>
+//Type definition
+#include <c_types.h>
+typedef real32_t float32_t;
+
 
 class PID_Controller 
 {
@@ -23,7 +25,7 @@ class PID_Controller
         float32_t p, i, d;
 
         //Constructor
-        PID_Controller(float32_t p = 0, float32_t p = 0, float32_t p = 0, float32_t i_max_change = 9999999, int32_t d_window_new = 1, int32_t d_window_old = 1);
+        PID_Controller(float32_t p = 0, float32_t i = 0, float32_t d = 0, float32_t i_max_change = 9999999, int32_t d_window_new = 1, int32_t d_window_old = 1);
 
         //Destructor
         ~PID_Controller();
