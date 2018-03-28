@@ -47,7 +47,7 @@ float32_t PID_Controller::update(const float32_t &measurement, const float32_t &
     i_term_previous = i_term;
     i_term -= error * i;
 
-    //Mitigate integrator windup
+    //Mitigate integrator windup by limiting max change
     if (i_term - i_term_previous > i_max_change_per_cycle)
         i_term = i_term_previous + i_max_change_per_cycle;
     else if (i_term - i_term_previous < -i_max_change_per_cycle)
@@ -71,7 +71,9 @@ float32_t PID_Controller::update(const float32_t &measurement, const float32_t &
         error_iteration = 0;
 
     //Calculate d_term
-    d_term = -((error_sum_fast / error_rolling_window_fast) - (error_sum_slow / error_rolling_window_slow)) / 2 * d;
+    //-(Average fast error - average slow error) * d
+    //Division operation is saved because the time step is one cycle
+    d_term = -((error_sum_fast / error_rolling_window_fast) - (error_sum_slow / error_rolling_window_slow)) * d;
 
     //Return result
     return p_term + i_term + d_term;
