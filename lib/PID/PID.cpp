@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 //Constructor
-PID_Controller::PID_Controller(float32_t p, float32_t i, float32_t d, float32_t i_max_change_per_cycle, int32_t d_window_fast, int32_t d_window_slow)
+PID_Controller::PID_Controller(float p, float i, float d, float i_max_change_per_cycle, int32_t d_window_fast, int32_t d_window_slow)
     : p(p), i(i), d(d)
     , p_term(0), i_term(0), d_term(0)
     , i_max_change_per_cycle(i_max_change_per_cycle)
@@ -23,7 +23,7 @@ PID_Controller::PID_Controller(float32_t p, float32_t i, float32_t d, float32_t 
         error_rolling_window_slow = d_window_slow;
     }
 
-    errors = new float32_t[error_rolling_window_slow];
+    errors = new float[error_rolling_window_slow];
     //There has to be a better way to initialize to 0
     for (int32_t i = 0; i < error_rolling_window_slow; i++)  
         errors[i] = 0.0f;
@@ -36,9 +36,9 @@ PID_Controller::~PID_Controller()
 }
 
 //Methods
-float32_t PID_Controller::update(const float32_t &measurement, const float32_t &reference)
+float PID_Controller::update(const float &measurement, const float &reference)
 {
-    float32_t error = measurement - reference;
+    float error = measurement - reference;
     
     //Calculate p_term
     p_term = -error * p;
