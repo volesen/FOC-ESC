@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+//TODO: write documentation
+
 class PID_Controller 
 {
     private:
@@ -22,7 +24,7 @@ class PID_Controller
         float p, i, d;
 
         //Constructor
-        PID_Controller(float p = 0, float i = 0, float d = 0, float i_max_change = 9999999, int32_t d_window_new = 1, int32_t d_window_old = 1);
+        PID_Controller(float p = 0, float i = 0, float d = 0, float i_max_change = 9999999, int32_t d_window_fast = 1, int32_t d_window_slow = 2);
 
         //Destructor
         ~PID_Controller();
