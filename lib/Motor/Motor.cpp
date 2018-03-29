@@ -204,84 +204,101 @@ void Motor0::update_pwm()
 // ///====================================================================================
 // ///Motor1 definition
 // ///====================================================================================
+bool Motor1::_initialized = false;
 
-// : _pins{25, 32, 33} { }
+Motor1::Motor1()
+    : _pins{25, 33, 32}
+{
+    _pwm = motor_pwm(0, 0, 0);
+}
 
+Motor1& Motor1::get()
+{
+    //Is instantiated on first call. 
+    //Subsequent calls simply return the already existing motor
+    static Motor1 motor;        
 
-// void Motor1::update_pwm()
-// {
-//     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3, (uint16_t)_pwm.A);
-//     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_4, (uint16_t)_pwm.B);
-//     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5, (uint16_t)_pwm.C);
-// }
+    return motor;
+}
 
-// Motor1& Motor1::get()
-// {
-//     static Motor1 motor;
+const uint8_t *Motor1::get_pins() const
+{
+    // if (!_initialized)
+    //     throw 0;
+    // else
+        return _pins;
+}
 
-//     return motor;
-// }
+bool Motor1::get_initialized() const
+{
+    return Motor1::_initialized;
+}
 
-// void Motor1::initialize()
-// {
-//     //Default values for Motor1 phases (pins B5, E4, E5)
-//     _pwm = motor_pwm(); //Initialize to no duty cycle (0 value)
+void Motor1::initialize()
+{
+    //Check if already initialized
+    // if (_initialized)
+    //     throw 0;
 
-//     //Check if already initialized
-//     if (_initialized)
-//         throw 0;
-
-//     //Set the PWM clock to be the system clock divided by 4
-//     SysCtlPWMClockSet(SYSCTL_PWMDIV_1); 
+    periph_module_enable(PERIPH_PWM0_MODULE);       //Enable MCPWM0 module
     
-//     //Enable PWM module 0 if not enabled
-//     if (!SysCtlPeripheralReady(SYSCTL_PERIPH_PWM0))             
-//     {
-//         SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);             //Enable PWM module 0
-//         while(!SysCtlPeripheralReady(SYSCTL_PERIPH_PWM0)) {}    //Wait for PWM module 0 to be ready
-//     }
-    
-//     //Enable port B and E if not enabled
-//     if (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB) || !SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE))
-//     {
-//         SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);            //Enable port B
-//         SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);            //Enable port E
+    //Pin initialization
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        //I do not understand exactly how this one works.
+        //If it isn't here, behavior is inconsistent on SOME pins.
+        //It apparently sets a register based on a mask but it does it in a weird way that I don't get.
+        PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[(gpio_num_t)_pins[i]], PIN_FUNC_GPIO);
 
-//         //Wait for ports to become enabled
-//         while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB)) {}   //Wait for GPIOB to be ready
-//         while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE)) {}   //Wait for GPIOE to be ready
-//     }
+        //Set GPIO pin to output
+        //Serial.println((gpio_num_t)_pins[i]);
+        gpio_set_direction((gpio_num_t)_pins[i], GPIO_MODE_OUTPUT);
+        
+        //Route PWM operator output 0B, 1B, 2B to their respective pins via the GPIO matrix. 
+        //PWM0_OUT0A_IDX is the index for operator 0A in MCPWM module 0
+        //PWM0_OUT0A_IDX, +1 is PWM0_OUT0B_IDX, +2 is PWM0_OUT1A_IDX
+        //The two last parameters are zero to disable output signal inversion and output control/enable inversion.
+        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2 + 1, 0, 0);
+    }    
 
-//     //Set pins to PWM mode
-//     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_5);
-//     GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_4);
-//     GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_5);
+    //Set up timer
+    MCPWM0.clk_cfg.prescale = MCPWM_CLK_PRESCL;             //Set MCPWM base clock prescaler
+    MCPWM0.timer[0].period.prescale = TIMER_CLK_PRESCALE;   //Set prescale of timer 0
+    MCPWM0.timer[0].period.period = PWM_PERIOD;             //Set period of timer 0 which defines precision of PWM
+    MCPWM0.timer[0].period.upmethod = 1;                    //Set update method to update each time timer 0 equals zero (TEZ) (avoids weird glitches)
+    MCPWM0.timer[0].mode.mode = 1;                          //Set timer to count up
 
-//     //Route PWM output to correct pins (some outputs go to multiple pins)
-//     GPIOPinConfigure(GPIO_PB5_M0PWM3);
-//     GPIOPinConfigure(GPIO_PE4_M0PWM4);
-//     GPIOPinConfigure(GPIO_PE5_M0PWM5);
+    //Set all PWM operators to use timer 0 as their reference
+    MCPWM0.timer_sel.operator0_sel = 0;
+    MCPWM0.timer_sel.operator1_sel = 0;
+    MCPWM0.timer_sel.operator2_sel = 0;
 
-//     //Configure PWM generator 1 and 2 in module 0 to count down and to update outputs asynchronously (fastest response time)
-//     PWMGenConfigure(PWM0_BASE, PWM_GEN_1, 
-//                     PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
-//     PWMGenConfigure(PWM0_BASE, PWM_GEN_2, 
-//                     PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
+    //Set duty period of operators to 0
+    for (uint8_t i = 0; i < 3; i++)
+    {   
+        MCPWM0.channel[i].cmpr_value[1].cmpr_val = 0;       //Set duty period of operator i (tied to channel i) output B to 0
+        MCPWM0.channel[i].cmpr_cfg.b_upmethod = BIT(0);     //Set operator i output B to update compare value on event TEZ
+        
+        //These setting scan be used to invert the signal
+        MCPWM0.channel[i].generator[1].utep = 0;            //Set operator i output B to do nothing when event (counting up timer equals period) happens
+        MCPWM0.channel[i].generator[1].uteb = 1;            //Set operator i output B to go low when event (counting up timer equals B compare value) happens
+        MCPWM0.channel[i].generator[1].utez = 2;            //Set operator i output B to go high when event (counting up timer equals zero) happens
+    }
 
-//     //Set the period to 1024 ticks (40MHz (System clock) / 1 (PWM divider) / (1024 + 1) = 39024,3902... Hz)
-//     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, PWM_TICKS);
-//     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_2, PWM_TICKS);
-    
-//     //Set pulse widths to default values
-//     update_pwm();
+    MCPWM0.timer[0].mode.start = 2;         //Set timer to run freely without any event as a stop condition
 
-//     //Enable PWM generator 1 and 2 in module 0
-//     PWMGenEnable(PWM0_BASE, PWM_GEN_1);
-//     PWMGenEnable(PWM0_BASE, PWM_GEN_2);
+    //Update registers
+    MCPWM0.update_cfg.global_up_en = 1;     //Enable active registers in MCPWM module 0 to be updated by shadow registers
+    MCPWM0.update_cfg.global_force_up = 1;  //Force new update of active registers in MCPWM module 0
+    MCPWM0.update_cfg.global_force_up = 0;  //Stop forcing the above update
 
-//     //Enable output on selected pins
-//     PWMOutputState(PWM0_BASE, (PWM_OUT_3_BIT | PWM_OUT_4_BIT | PWM_OUT_5_BIT), true);
+    //Set initialized state so that methods can be used
+    _initialized = true;
+}
 
-//     //Set initialized state so that methods can be used
-//     _initialized = true;
-// }
+void Motor1::update_pwm()
+{
+    MCPWM0.channel[0].cmpr_value[1].cmpr_val = (uint32_t)_pwm.A;       //Set duty period of operator 0 (tied to channel 0) output B to _pwm.A
+    MCPWM0.channel[1].cmpr_value[1].cmpr_val = (uint32_t)_pwm.B;       //Set duty period of operator 1 (tied to channel 1) output B to _pwm.B
+    MCPWM0.channel[2].cmpr_value[1].cmpr_val = (uint32_t)_pwm.C;       //Set duty period of operator 2 (tied to channel 2) output B to _pwm.C
+}

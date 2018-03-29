@@ -159,24 +159,57 @@ class Motor0 : public Motor
       void initialize();
 };
 
-// class Motor1 : public Motor
-// {
-//     protected:
-//         Motor1() {}
-//         Motor1(Motor0 const &);
-//         Motor1& operator=(const Motor1 &);
+class Motor1 : public Motor
+{
+    protected:
+      //Singleton necessities
+      Motor1();
+      Motor1(const Motor1 &){};
+      Motor1 &operator=(const Motor1 &){};
+      
+      //Fields
+      /**
+       * @brief Initialization status of Motor1. 
+       */
+      static bool _initialized;
+      
+      /**
+       * @brief Output pins of Motor1.
+       */
+      uint8_t _pins[3];
+      
+      //Methods
+      /**
+       * @brief Stages the PWM output to be updated on next PWM period with values in _pwm struct.
+       */
+      void update_pwm();
+        
+    public:
+      //Properties
+      /**
+       * @brief The output pins of Motor1.
+       * 
+       * @return A pointer to a uint8_t[3] with three GPIO numbers representing the PWM output pins of Motor1.
+       */
+      const uint8_t *get_pins() const;
 
-//         static bool _initialized;
-//         motor_pwm _pwm;
-//         float _pwm_max_bound;
-		
-//         virtual void update_pwm(); //Updates the PWM output at the motor pins
+      /**
+       * @brief Gets initialization status of Motor1.
+       * 
+       * @return A boolean value. true: Motor1 initialized, false: Motor1 not initialized.
+       */
+      bool get_initialized() const;
 
-//     public:
-//         //Methods
-//         static Motor1& get();
-//         virtual void initialize();
+      //Methods
+      /**
+       * @brief Gets the singleton instance of Motor1.
+       * 
+       * @return Singleton instance of Motor1.
+       */
+      static Motor1 &get();
 
-//         virtual motor_pwm get_pwm();
-//         virtual void set_pwm(const motor_pwm &pwm); //Scales the output then passes to update_pwm
-// };
+      /**
+       * @brief Initialize motor by setting up PWM controls.
+       */
+      void initialize();
+};

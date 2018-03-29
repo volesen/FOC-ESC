@@ -8,11 +8,10 @@ void setup()
     Serial.println();
     Serial.println("going to initialize now");
     Motor0::get().initialize();
+    Motor1::get().initialize();
     Motor0::get().set_pwm(motor_pwm(-2000, 2000, 0));
-    motor_pwm stuff = Motor0::get().get_pwm(;//.get_descaled(Motor0::get().get_pwm_max_bound());
-    Serial.println(stuff.A);
-    Serial.println(stuff.B);
-    Serial.println(stuff.C);
+    Motor1::get().set_pwm(motor_pwm(2000, 2000, 0));
+    motor_pwm stuff = Motor0::get().get_pwm();//.get_descaled(Motor0::get().get_pwm_max_bound());
     Serial.println("hi, i'm initialized");
 
     // Serial.begin(9600);
