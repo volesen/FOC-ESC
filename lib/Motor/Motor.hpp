@@ -1,61 +1,162 @@
 #pragma once
 
-//Type definitions
-#include <c_types.h>
-typedef real32_t float32_t;
-
-
 struct motor_pwm
 {
-	float32_t A, B, C;
-	
-	motor_pwm(const float32_t &A = 0, const float32_t &B = 0, const float32_t &C = 0);
+    public:
+      /**
+       * @brief Value of the three motor phases.
+       */
+      float A, B, C;
+    
+      /**
+       * @brief Creates a new motor_pwm. Phases can be initialized via constructor.
+       */
+      motor_pwm(const float &A = 0, const float &B = 0, const float &C = 0);
 
-    float32_t get_max() const;
-    motor_pwm get_scaled(const float32_t &bound_max) const;      //Return scaled outputs within valid PWM ranges
+      /**
+       * @brief Gets the phase with the largest magnitude.
+       * 
+       * @return Magnitude of phase with largest magnitude.
+       */
+      float get_max() const;
+
+      /**
+       * @brief Scales phase magnitudes so that the neutral point is at PWM_PERIOD / 2 and bound is at [0; PWM_PERIOD].
+       * 
+       * @param float bound_max : maximum magnitude to use as reference when scaling
+       * 
+       * @return A new motor_pwm with values scaled to valid PWM ranges.
+       */
+      motor_pwm get_scaled(const float &bound_max) const;
+
+      /**
+       * @brief Scales phase magnitudes so that the neutral point is at 0 and bound is at [-bound_max; bound_max].
+       * 
+       * @param float bound_max : maximum magnitude to use as reference when scaling
+       * 
+       * @return A new motor_pwm with values scaled to be easy to manipulate.
+       */
+      motor_pwm get_descaled(const float &bound_max) const;
 };
 
 class Motor
 {
     protected:
-        Motor() {}
-        Motor(Motor const &);
-        Motor& operator=(const Motor &);
-		
-        static bool _initialized;
-        motor_pwm _pwm;
-        float32_t _pwm_max_bound;
+      //Fields
+      /**
+       * @brief motor_pwm struct that contains current scaled pwm values.
+       */
+      motor_pwm _pwm;
 
-        virtual void update_pwm() = 0;
+      /**
+       * @brief The highest pwm phase magnitude passed to set_pwm.
+       */
+      float _pwm_max_bound;
+      
+      //Methods
+      /**
+       * @brief Stages the PWM output to be updated on next PWM period with values in _pwm struct.
+       */
+      virtual void update_pwm() = 0;
 
 	public:
-        //Methods
-        virtual void initialize() = 0;
+      //Properties
+      /**
+       * @brief The output pins of motor.
+       * 
+       * @return A pointer to a uint8_t[3] with three GPIO numbers representing the PWM output pins of motor.
+       */
+      virtual const uint8_t *get_pins() const = 0;
 
-        virtual motor_pwm get_pwm() const;
-        virtual void set_pwm(const motor_pwm &pwm);
+      /**
+       * @brief Gets initialization status of motor.
+       * 
+       * @return A boolean value. true: motor initialized, false: motor not initialized.
+       */
+      virtual bool get_initialized() const = 0;
+
+      /**
+       * @brief Gets the highest pwm phase magnitude passed to set_pwm.
+       * 
+       * @return A float representing the highest pwm phase magnitude passed to set_pwm.
+       */
+      virtual float get_pwm_max_bound() const;
+
+      /**
+       * @brief Gets motor_pwm struct containing current scaled pwm values.
+       * 
+       * @return motor_pwm struct containing current scaled pwm values.
+       */
+      virtual motor_pwm get_pwm() const;
+      
+      /**
+       * @brief Scale input parameter, save scaled parameter, and update PWM output to new values.
+       * 
+       * @param motor_pwm pwm : New PWM values to apply to motor.
+       */
+      virtual void set_pwm(const motor_pwm &pwm);
+      
+      //Methods
+      /**
+       * @brief Initialize motor by setting up PWM controls.
+       */
+      virtual void initialize() = 0;
+      
 };
 
-class Motor0 //: public Motor
+class Motor0 : public Motor
 {
     protected:
-        //Motor0() {}
-        //Motor0(Motor0 const &);
-        //Motor0& operator=(const Motor0&);
-
-        // static bool _initialized;
-        // motor_pwm _pwm;
-        // float32_t _pwm_max_bound;
-		
-        void update_pwm(); //Updates the PWM output at the motor pins
+      //Singleton necessities
+      Motor0();
+      Motor0(const Motor0 &){};
+      Motor0 &operator=(const Motor0 &){};
+      
+      //Fields
+      /**
+       * @brief Initialization status of Motor0. 
+       */
+      static bool _initialized;
+      
+      /**
+       * @brief Output pins of Motor0.
+       */
+      uint8_t _pins[3];
+      
+      //Methods
+      /**
+       * @brief Stages the PWM output to be updated on next PWM period with values in _pwm struct.
+       */
+      void update_pwm();
         
     public:
-        //Methods
-        static Motor0& get_motor();
-        void initialize();
+      //Properties
+      /**
+       * @brief The output pins of Motor0.
+       * 
+       * @return A pointer to a uint8_t[3] with three GPIO numbers representing the PWM output pins of Motor0.
+       */
+      const uint8_t *get_pins() const;
 
-        //motor_pwm get_pwm() const;
-        //void set_pwm(const motor_pwm &pwm); //Scales the output then passes to update_pwm
+      /**
+       * @brief Gets initialization status of Motor0.
+       * 
+       * @return A boolean value. true: Motor0 initialized, false: Motor0 not initialized.
+       */
+      bool get_initialized() const;
+
+      //Methods
+      /**
+       * @brief Gets the singleton instance of Motor0.
+       * 
+       * @return Singleton instance of Motor0.
+       */
+      static Motor0 &get();
+
+      /**
+       * @brief Initialize motor by setting up PWM controls.
+       */
+      void initialize();
 };
 
 // class Motor1 : public Motor
@@ -67,13 +168,13 @@ class Motor0 //: public Motor
 
 //         static bool _initialized;
 //         motor_pwm _pwm;
-//         float32_t _pwm_max_bound;
+//         float _pwm_max_bound;
 		
 //         virtual void update_pwm(); //Updates the PWM output at the motor pins
 
 //     public:
 //         //Methods
-//         static Motor1& get_motor();
+//         static Motor1& get();
 //         virtual void initialize();
 
 //         virtual motor_pwm get_pwm();
