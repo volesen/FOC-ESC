@@ -100,7 +100,7 @@ class Motor
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      virtual void initialize() = 0;
+      virtual Motor& initialize() = 0;
       
 };
 
@@ -156,7 +156,7 @@ class Motor0 : public Motor
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      void initialize();
+      Motor0& initialize();
 };
 
 class Motor1 : public Motor
@@ -211,5 +211,5 @@ class Motor1 : public Motor
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      void initialize();
+      Motor1& initialize();
 };

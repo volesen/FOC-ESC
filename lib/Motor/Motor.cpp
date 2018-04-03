@@ -131,7 +131,7 @@ bool Motor0::get_initialized() const
     return Motor0::_initialized;
 }
 
-void Motor0::initialize()
+Motor0& Motor0::initialize()
 {
     //Check if already initialized
     // if (_initialized)
@@ -191,6 +191,9 @@ void Motor0::initialize()
 
     //Set initialized state so that methods can be used
     _initialized = true;
+
+    //Return motor so that settings can be set up immediately after with easy syntax
+    return get();
 }
 
 void Motor0::update_pwm()
@@ -234,7 +237,7 @@ bool Motor1::get_initialized() const
     return Motor1::_initialized;
 }
 
-void Motor1::initialize()
+Motor1& Motor1::initialize()
 {
     //Check if already initialized
     // if (_initialized)
@@ -294,6 +297,9 @@ void Motor1::initialize()
 
     //Set initialized state so that methods can be used
     _initialized = true;
+
+    //Return motor so that settings can be set up immediately after with easy syntax
+    return get();
 }
 
 void Motor1::update_pwm()
