@@ -1,5 +1,3 @@
-#pragma once
-
 /*
 	Implementation of lookuptables for sine and cosine without comparisons
 */

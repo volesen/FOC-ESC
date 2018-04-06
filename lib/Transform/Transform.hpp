@@ -1,23 +1,27 @@
 #pragma once
 
 #include <stdint.h>
+#include "Trig.hpp"
 
-typedef struct {
+struct Iabc {
 	float Ia, Ib, Ic;
-} Iabc;
+};
 
-typedef struct {
+struct Iab{
 	float Ia, Ib;
-} Iab;
+};
 
-typedef struct {
+struct Idq {
 	float Id, Iq;
-} Idq;
+};
 
 class Transform{
 	public:
-		static void clarke(Iabc &Iabc, Iab &Iab);
-		static void inv_clarke(Iab &Iab, Iabc &Iabc);
-		static void park(uint16_t &theta, Iab &Iab, Idq &Idq);
-		static void inv_park(uint16_t &theta, Idq &Idq, Iab &Iab);
+		static Iab clarke(const Iabc &Iabc);
+		static Iabc inv_clarke(const Iab &Iab);
+		static Idq park(const uint16_t &theta, const Iab &Iab);
+		static Iab inv_park(const uint16_t &theta, const Idq &Idq);
+
+		static Idq de_phase(const uint16_t &theta, const Iabc &Iabc);
+		static Iabc to_phase(const uint16_t &theta, const Idq &Idq);
 };
