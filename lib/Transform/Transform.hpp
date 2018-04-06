@@ -1,19 +1,17 @@
 #pragma once
 
-typedef float float32_t;
-
-typedef int uint16_t;
+#include <stdint.h>
 
 typedef struct {
-	float32_t Ia, Ib, Ic;
+	float Ia, Ib, Ic;
 } Iabc;
 
 typedef struct {
-	float32_t Ia, Ib;
+	float Ia, Ib;
 } Iab;
 
 typedef struct {
-	float32_t Id, Iq;
+	float Id, Iq;
 } Idq;
 
 class Transform{

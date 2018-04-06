@@ -4,13 +4,13 @@
 	Implementation of lookuptables for sine and cosine without comparisons
 */
 
-#include "Math.hpp"
+#include "Trig.hpp"
 
 /*
 	Index of mechanical angle in lookup table
 */
 
-float32_t Math::idx(uint16_t theta) {
+float Trig::idx(uint16_t theta) {
 	int n = theta % ELECTRIC_ROTATION_STEPS;
 	return n;
 }
@@ -19,8 +19,8 @@ float32_t Math::idx(uint16_t theta) {
 	Get n'th element in lookup table for sine
 */
 
-float32_t Math::sin(uint16_t theta) {
-	int n = Math::idx(theta);
+float Trig::sin(uint16_t theta) {
+	int n = Trig::idx(theta);
 	return sin_table[n];
 }
 
@@ -28,7 +28,7 @@ float32_t Math::sin(uint16_t theta) {
 	Get n'th element in lookup table for cosine
 */
 
-float32_t Math::cos(uint16_t theta) {
-	int n = Math::idx(theta);
+float Trig::cos(uint16_t theta) {
+	int n = Trig::idx(theta);
 	return cos_table[n];
 }
