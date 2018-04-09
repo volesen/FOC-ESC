@@ -117,6 +117,20 @@ class Motor
 
       //Methods
       /**
+       * @brief Gets the singleton instance of a motor.
+       * 
+       * @param char id : The ID of the motor to get.
+       * 
+       * @return Singleton instance of a motor.
+       */
+      static Motor& get(char id);
+
+      /**
+       * @brief Initializes all Motor0 and Motor1.
+       */
+      static void initialize_all();
+
+      /**
        * @brief Initialize motor by setting up PWM controls.
        */
       virtual Motor& initialize() = 0;

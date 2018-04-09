@@ -65,6 +65,25 @@ motor_pwm motor_pwm::get_descaled(const float &bound_max) const
 ///====================================================================================
 ///Motor definition
 ///====================================================================================
+Motor& Motor::get(char id)
+{
+    switch (id)
+    {
+        case 0:
+            return Motor0::get();
+        case 1:
+            return Motor0::get();
+        default:
+            return;
+    }
+}
+
+void Motor::initialize_all()
+{
+    Motor::get(0).initialize();
+    Motor::get(1).initialize();
+}
+
 float Motor::get_pwm_max_bound() const
 {
     // if (!_initialized)
