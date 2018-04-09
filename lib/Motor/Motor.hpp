@@ -90,14 +90,14 @@ class Motor
       virtual motor_pwm get_pwm() const;
 
       /**
-       * @brief Scale input parameter, save scaled parameter, and update PWM output to new values.
+       * @brief Scale input parameter to PWM period values, save scaled parameter, and update PWM output to new values.
        * 
        * @param motor_pwm pwm : New PWM values to apply to motor.
        */
       virtual void set_pwm(const motor_pwm &pwm);
 
       /**
-       * @brief Scale input parameters, save scaled parameters, and update PWM output to new values.
+       * @brief Scale input parameters to PWM period values, save scaled parameters, and update PWM output to new values.
        * 
        * @param float A : New PWM value for phase A
        * @param float B : New PWM value for phase B

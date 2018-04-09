@@ -74,7 +74,8 @@ Motor& Motor::get(char id)
         case 1:
             return Motor0::get();
         default:
-            return;
+            //Throw an error or something
+            break;
     }
 }
 
@@ -112,9 +113,10 @@ void Motor::set_pwm(const motor_pwm &pwm)
             _pwm_max_bound = max;
 
         _pwm = pwm.get_scaled(_pwm_max_bound);
+        
+        update_pwm();
     // }
 
-    update_pwm();
 }
 
 void Motor::set_pwm(const float &A, const float &B, const float &C)
@@ -133,8 +135,10 @@ void Motor::set_pwm_low()
     //     throw 0;
     // else
     // {
-        set_pwm(-_pwm_max_bound, -_pwm_max_bound, -_pwm_max_bound);
-    // }
+        _pwm.A = _pwm.B = _pwm.C = 0;
+
+        update_pwm();
+        // }
 }
 
 void Motor::set_pwm_high()
@@ -143,7 +147,9 @@ void Motor::set_pwm_high()
     //     throw 0;
     // else
     // {
-        set_pwm(_pwm_max_bound, _pwm_max_bound, _pwm_max_bound);
+        _pwm.A = _pwm.B = _pwm.C = PWM_PERIOD;
+
+        update_pwm();
     // }
 }
 

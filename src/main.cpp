@@ -22,10 +22,11 @@ void setup()
     abc.Ib = 0;
     abc.Ic = 0;
 
-    Motor::initialize_all();
+    Motor::get(0).initialize();
     QEncoder::initialize_all();
 
-    Motor::get(0).set_pwm(0, 0, 0);
+    //Set PWM of Motor0 in case of emergency
+    Motor::get(0).set_pwm_low();
 }
 
 void loop() 
