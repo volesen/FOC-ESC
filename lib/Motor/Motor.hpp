@@ -104,7 +104,17 @@ class Motor
        * @param float C : New PWM value for phase C
        */
       virtual void set_pwm(const float &A, const float &B, const float &C);
-      
+
+      /**
+       * @brief Set all PWM outputs to ground.
+       */
+      virtual void set_pwm_low();
+
+      /**
+       * @brief Set all PWM outputs to 3.3 V.
+       */
+      virtual void set_pwm_high();
+
       //Methods
       /**
        * @brief Initialize motor by setting up PWM controls.
