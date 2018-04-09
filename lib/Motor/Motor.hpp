@@ -88,13 +88,22 @@ class Motor
        * @return motor_pwm struct containing current scaled pwm values.
        */
       virtual motor_pwm get_pwm() const;
-      
+
       /**
        * @brief Scale input parameter, save scaled parameter, and update PWM output to new values.
        * 
        * @param motor_pwm pwm : New PWM values to apply to motor.
        */
       virtual void set_pwm(const motor_pwm &pwm);
+
+      /**
+       * @brief Scale input parameters, save scaled parameters, and update PWM output to new values.
+       * 
+       * @param float A : New PWM value for phase A
+       * @param float B : New PWM value for phase B
+       * @param float C : New PWM value for phase C
+       */
+      virtual void set_pwm(const float &A, const float &B, const float &C);
       
       //Methods
       /**

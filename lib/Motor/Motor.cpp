@@ -98,6 +98,16 @@ void Motor::set_pwm(const motor_pwm &pwm)
     update_pwm();
 }
 
+void Motor::set_pwm(const float &A, const float &B, const float &C)
+{
+    //This is the overloaded function even though it is inefficient to create a new struct
+    //This is because set_pwm(pwm) changes _pwm in one assignment.
+    //If set_pwm(A, B, C) was the "main" function then _pwm would have been assigned to four times with the straight forward approach.
+    //This is bad if an interrupt comes in the middle and tries to get _pwm.
+    //The _pwm value will potentially not have been scaled yet.
+    set_pwm(motor_pwm(A, B, C));
+}
+
 ///====================================================================================
 ///Motor0 definition
 ///====================================================================================
