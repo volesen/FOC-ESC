@@ -3,7 +3,7 @@
 #include "Transform.hpp"
 #include "PID.hpp"
 #include "Motor.hpp"
-#include "QuadratureEncoder.hpp"
+#include "QEncoder.hpp"
 
 //PID and transform
 uint16_t angle = 0;
@@ -14,8 +14,6 @@ Iabc abc;
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
-QuadratureEncoder Encoder(23, 22, QuadratureEncoderSlot::Encoder0);
-
 void setup()
 {
     Serial.begin(9600);
@@ -25,7 +23,7 @@ void setup()
     abc.Ic = 0;
 
     Motor0::get().initialize().set_pwm(0, 0, 0);
-
+    QEncoder::initialize_all();
 }
 
 void loop() 
@@ -69,7 +67,7 @@ void loop()
     // Serial.println(posY);
     // Serial.println(posX - posY);
 
-    Serial.println(Encoder.get_axis_position());
+    Serial.println(QEncoder::get(0).get_axis_position());
 
     // delay(300);
 
