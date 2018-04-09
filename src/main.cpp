@@ -88,23 +88,7 @@ void loop() {
     delay(1000);
 
 
-//Handle the interrupt
-    if(interruptCounter > 0){
-        portENTER_CRITICAL(&mux);
-        interruptCounter--;
-        portEXIT_CRITICAL(&mux);
-
-        stateB = digitalRead(22);
-
-        if(stateB == 1){   //Clockwise rotation
-            pos++;
-        } else if(stateB == 0){  //Counter Clockwise rotation
-            pos--;
-        }
-
-        Serial.println(pos);
-    }
-    */
+*/
 
 }
 
