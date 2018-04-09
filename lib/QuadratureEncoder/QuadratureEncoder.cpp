@@ -1,35 +1,85 @@
 #include "QuadratureEncoder.hpp"
 #include "Transform.hpp"
 
-QuadratureEncoder::QuadratureEncoder(char pin_interrupt, char pin_secondary)
+QuadratureEncoder *QuadratureEncoder::Encoder0 = 0;
+QuadratureEncoder *QuadratureEncoder::Encoder1 = 0;
+
+QuadratureEncoder::QuadratureEncoder(char pin_interrupt, char pin_secondary, QuadratureEncoderSlot encoder_slot)
     : pin_interrupt(pin_interrupt), pin_secondary(pin_secondary), 
-      axis_position(0), virtual_position(0)
+      axis_position(0), virtual_position(0), encoder_slot(encoder_slot)
 {
     pinMode(pin_interrupt, INPUT_PULLUP); //TODO:Test if pull down works instead
     pinMode(pin_secondary, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(pin_interrupt),this->handle_interrupt, RISING); //Trigger interrupt on pin 23, on a rising edge
+
+    void (*interrupt_handler)();
+
+    switch (encoder_slot)
+    {
+        case QuadratureEncoderSlot::Encoder0:
+            Encoder0 = this;
+            interrupt_handler = handle_interrupt_Encoder0;
+
+            break;
+
+        case QuadratureEncoderSlot::Encoder1:
+            Encoder1 = this;
+            interrupt_handler = handle_interrupt_Encoder0;
+
+            break;
+
+        default:
+            break;
+    }
+
+    attachInterrupt(digitalPinToInterrupt(pin_interrupt), interrupt_handler, 1);
 }
 
 QuadratureEncoder::~QuadratureEncoder()
 {
     detachInterrupt(digitalPinToInterrupt(pin_interrupt));
+
+    switch (encoder_slot)
+    {
+        case QuadratureEncoderSlot::Encoder0:
+            Encoder0 = 0;
+
+            break;
+
+        case QuadratureEncoderSlot::Encoder1:
+            Encoder1 = 0;
+
+            break;
+
+        default:
+            break;
+    }
 }
 
-void IRAM_ATTR QuadratureEncoder::handle_interrupt()
+void IRAM_ATTR QuadratureEncoder::handle_interrupt(QuadratureEncoder* const encoder)
 {
     
-    bool state = digitalRead(pin_secondary);
+    bool state = digitalRead(encoder->pin_secondary);
 
     if(state)   //Clockwise rotation
     {   
-        axis_position++;
-        virtual_position = virtual_position == ELECTRIC_ROTATION_STEPS ? 0 : virtual_position + 1;
+        encoder->axis_position++;
+        encoder->virtual_position = encoder->virtual_position == ELECTRIC_ROTATION_STEPS ? 0 : encoder->virtual_position + 1;
     } 
     else if(state)  //Counter Clockwise rotation
     {
-        axis_position--;
-        virtual_position = virtual_position == 0 ? ELECTRIC_ROTATION_STEPS : virtual_position - 1;
+        encoder->axis_position--;
+        encoder->virtual_position = encoder->virtual_position == 0 ? ELECTRIC_ROTATION_STEPS : encoder->virtual_position - 1;
     }
+}
+
+void IRAM_ATTR QuadratureEncoder::handle_interrupt_Encoder0()
+{
+    handle_interrupt(Encoder0);
+}
+
+void IRAM_ATTR QuadratureEncoder::handle_interrupt_Encoder1()
+{
+    handle_interrupt(Encoder1);
 }
 
 char QuadratureEncoder::get_pin_interrupt() const { return pin_interrupt; }
