@@ -104,6 +104,7 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(InterruptPinM1),M1HandleInterrupt, RISING); //Trigger interrupt on pin 23, on a rising edge
 }
 
+<<<<<<< HEAD
 void loop() 
 {
     dq = Transform::de_phase(angle, abc);
@@ -145,6 +146,20 @@ void loop()
     // Serial.println(posY);
     // Serial.println(posX - posY);
     // delay(1);
+=======
+void loop() {
+/*
+    Serial.println("-----------------");
+    Serial.println(posX);
+    Serial.println("------");
+    Serial.println(posY);
+    Serial.println("------");
+    Serial.println(posX - posY);
+    delay(1000);
+
+
+*/
+>>>>>>> Update_Real_Position
 
 }
 
