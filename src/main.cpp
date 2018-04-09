@@ -20,7 +20,7 @@ void setup()
     abc.Ib = 0;
     abc.Ic = 0;
 
-    //Motor0::get().initialize().
+    Motor0::get().initialize().set_pwm(0, 0, 0);
 }
 
 void loop() 
@@ -28,16 +28,16 @@ void loop()
     dq = Transform::de_phase(angle, abc);
 
     dq.Id = PID_waste.update(dq.Id, (float)0);
-    dq.Iq = PID_torque.update(dq.Iq, (float)60);
+    dq.Iq = PID_torque.update(dq.Iq, (float)100);
 
     abc = Transform::to_phase(angle, dq);
 
     abc.Ia = abc.Ia +3;
     abc.Ib = abc.Ib -4;
     abc.Ic = abc.Ic +2;
+
+    Motor0::get().set_pwm(abc.Ia, abc.Ib, abc.Ic);
     
-
-
 
     // Serial.print(abc.Ia);
     // Serial.print(',');
@@ -53,5 +53,7 @@ void loop()
     ((angle < MECHANICAL_ROTATION_STEPS))
         ? angle++
         : angle = 0;
+
+    delay(1);
 }
 
