@@ -108,6 +108,26 @@ void Motor::set_pwm(const float &A, const float &B, const float &C)
     set_pwm(motor_pwm(A, B, C));
 }
 
+void Motor::set_pwm_low()
+{
+    // if (!_initialized)
+    //     throw 0;
+    // else
+    // {
+        set_pwm(-_pwm_max_bound, -_pwm_max_bound, -_pwm_max_bound);
+    // }
+}
+
+void Motor::set_pwm_high()
+{
+    // if (!_initialized)
+    //     throw 0;
+    // else
+    // {
+        set_pwm(_pwm_max_bound, _pwm_max_bound, _pwm_max_bound);
+    // }
+}
+
 ///====================================================================================
 ///Motor0 definition
 ///====================================================================================
