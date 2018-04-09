@@ -1,7 +1,7 @@
-#define MCPWM_BASE_CLK (2 * APB_CLK_FREQ)                       //2*APB_CLK_FREQ 160Mhz
+#define MCPWM_BASE_CLK (2 * APB_CLK_FREQ)                       //2*APB_CLK_FREQ = 160Mhz
 #define MCPWM_CLK_PRESCL 0                                      //MCPWM clock prescale 
 #define TIMER_CLK_PRESCALE 0                                    //Timer submodule prescale (=160 MHz)
-#define PWM_FREQUENCY (40*1000)                                 //PWM frequency (=40KHz with resolution of (160MHz/40KHz=4000) at timer = 160MHz)
+#define PWM_FREQUENCY (20*1000)                                 //PWM frequency (=20KHz with resolution of (160MHz/20KHz=8000) at timer = 160MHz)
 
 #define MCPWM_FREQUENCY (MCPWM_BASE_CLK/(MCPWM_CLK_PRESCL +1))      //Final frequency of MCPWM module
 #define TIMER_FREQUENCY (MCPWM_FREQUENCY/(TIMER_CLK_PRESCALE + 1))  //Final timer frequency
