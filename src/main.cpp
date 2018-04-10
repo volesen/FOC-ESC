@@ -1,31 +1,31 @@
 #include <Arduino.h>
 
-#include "Transform.hpp"
-#include "PID.hpp"
-#include "Motor.hpp"
+// #include "Transform.hpp"
+// #include "PID.hpp"
+// #include "Motor.hpp"
 #include "QEncoder.hpp"
 
 //PID and transform
-uint16_t angle = 0;
+// uint16_t angle = 0;
 
-Idq dq;
-Iabc abc;
+// Idq dq;
+// Iabc abc;
 
-PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
-PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
+// PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
+//PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
 void setup()
 {
     Serial.begin(9600);
 
-    abc.Ia = 0;
-    abc.Ib = 0;
-    abc.Ic = 0;
+    // abc.Ia = 0;
+    // abc.Ib = 0;
+    // abc.Ic = 0;
 
     // Motor0::get().initialize();
     // Motor::get(1).initialize();
-    // QEncoder::initialize_all();
-    
+    QEncoder::get(0);
+
     //Set PWM of Motor0 in case of emergency
     // Motor::get(1).set_pwm_low();
 }
@@ -71,9 +71,8 @@ void loop()
     // Serial.println(posY);
     // Serial.println(posX - posY);
 
-    // Serial.println(QEncoder::get(0).get_axis_position());
+    Serial.println(QEncoder::get(0).get_axis_position());
 
-    // delay(300);
+    delay(1000);
 
 }
-

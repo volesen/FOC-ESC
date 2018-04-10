@@ -1,5 +1,5 @@
-#define Encoder0_pin_int 17
-#define Encoder0_pin_sec 16
+#define Encoder0_pin_int 23
+#define Encoder0_pin_sec 22
 
 #define Encoder1_pin_int 4
 #define Encoder1_pin_sec 0
@@ -78,8 +78,7 @@ void IRAM_ATTR QEncoder::handle_interrupt(QEncoder* const encoder)
         encoder->axis_position++;
         encoder->virtual_position == ELECTRIC_ROTATION_STEPS 
             ? encoder->virtual_position = 0 
-            :
-            encoder->virtual_position++;
+            : encoder->virtual_position++;
     } 
     else if(state)      //Counter-clockwise rotation
     {
