@@ -17,6 +17,7 @@ public:
 private:    
     static const float ADC_Resolution;
     static const float ADCResistor;
+    static const float DAMPMultiply;
 
 public:
     float Sample();
