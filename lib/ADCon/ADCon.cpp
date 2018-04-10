@@ -7,15 +7,13 @@
 
 #define ADC_ATTEN 0
 #define ADC_WIDTH 12
-#define ADC_CYCLES 1
+#define ADC_CYCLES 8
 #define ADC_SAMPLES 1
 #define ADC_CLK_DIV 1
 
 ADCon::ADCon(ADC_PIN pin)
     : pin((uint8_t)pin), sample(0), first_run(true), sample_updated(false)
 {
-    adc_power_on();
-
     analogSetWidth(ADC_WIDTH);
     analogSetCycles(ADC_CYCLES);
     analogSetSamples(ADC_SAMPLES);
@@ -26,13 +24,17 @@ ADCon::ADCon(ADC_PIN pin)
     adcAttachPin(this->pin);
 }
 
-float ADCon::convert_sample(const uint16_t &sample)
+float ADCon::convert_sample(const uint32_t &sample)
 {
     return sample * ADC_RESOLUTION / DAMPMultiply / ADC_RESISTOR;
 }
 bool ADCon::ask_sample_updated() 
 { 
     return sample_updated; 
+}
+bool ADCon::ask_sampling()
+{
+    return adcBusy(pin);
 }
 void ADCon::wait_save_restart_sample()
 {
@@ -47,7 +49,7 @@ float ADCon::get_sample()
     {
         adcStart(pin);                  //Start sampling
         wait_save_restart_sample();     //Wait for sample to finish, save sample, restart sampling
-
+        
         first_run = false;              //Mark first_run as false to not run again.
     }
     else if (!adcBusy(pin))             //If done sampling
