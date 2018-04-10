@@ -72,7 +72,7 @@ Motor& Motor::get(char id)
         case 0:
             return Motor0::get();
         case 1:
-            return Motor0::get();
+            return Motor1::get();
         default:
             //Throw an error or something
             break;
@@ -209,8 +209,10 @@ Motor0& Motor0::initialize()
         //Route PWM operator output 0A, 1A, 2A to their respective pins via the GPIO matrix. 
         //PWM0_OUT0A_IDX is the index for operator 0A in MCPWM module 0
         //PWM0_OUT0A_IDX +1 is PWM0_OUT0B_IDX, +2 is PWM0_OUT1A_IDX
-        //The two last parameters are zero to disable output signal inversion and output control/enable inversion.
-        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2, 0, 0);
+        //The two last parameters are output signal inversion and output control/enable inversion.
+        //The signal is inverted because it seems inverted in the first place. 
+        //Output control/enable inversion is disabled as it causes things to not turn off completely.
+        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2, 1, 0);
     }    
 
     //Set up timer
@@ -231,7 +233,7 @@ Motor0& Motor0::initialize()
         MCPWM0.channel[i].cmpr_value[0].cmpr_val = 0;       //Set duty period of operator i (tied to channel i) output A to 0
         MCPWM0.channel[i].cmpr_cfg.a_upmethod = BIT(0);     //Set operator i output A to update compare value on event TEZ
         
-        //These setting scan be used to invert the signal
+        //These settings can be used to invert the signal
         MCPWM0.channel[i].generator[0].utep = 0;            //Set operator i output A to do nothing when event (counting up timer equals period) happens
         MCPWM0.channel[i].generator[0].utea = 1;            //Set operator i output A to go low when event (counting up timer equals A compare value) happens
         MCPWM0.channel[i].generator[0].utez = 2;            //Set operator i output A to go high when event (counting up timer equals zero) happens
@@ -315,8 +317,10 @@ Motor1& Motor1::initialize()
         //Route PWM operator output 0B, 1B, 2B to their respective pins via the GPIO matrix. 
         //PWM0_OUT0A_IDX is the index for operator 0A in MCPWM module 0
         //PWM0_OUT0A_IDX, +1 is PWM0_OUT0B_IDX, +2 is PWM0_OUT1A_IDX
-        //The two last parameters are zero to disable output signal inversion and output control/enable inversion.
-        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2 + 1, 0, 0);
+        //The two last parameters are output signal inversion and output control/enable inversion.
+        //The signal is inverted because it seems inverted in the first place. 
+        //Output control/enable inversion is disabled as it causes things to not turn off completely.
+        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2 + 1, 1, 0);
     }    
 
     //Set up timer
@@ -337,7 +341,7 @@ Motor1& Motor1::initialize()
         MCPWM0.channel[i].cmpr_value[1].cmpr_val = 0;       //Set duty period of operator i (tied to channel i) output B to 0
         MCPWM0.channel[i].cmpr_cfg.b_upmethod = BIT(0);     //Set operator i output B to update compare value on event TEZ
         
-        //These setting scan be used to invert the signal
+        //These settings can be used to invert the signal
         MCPWM0.channel[i].generator[1].utep = 0;            //Set operator i output B to do nothing when event (counting up timer equals period) happens
         MCPWM0.channel[i].generator[1].uteb = 1;            //Set operator i output B to go low when event (counting up timer equals B compare value) happens
         MCPWM0.channel[i].generator[1].utez = 2;            //Set operator i output B to go high when event (counting up timer equals zero) happens

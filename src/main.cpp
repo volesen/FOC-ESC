@@ -22,11 +22,12 @@ void setup()
     abc.Ib = 0;
     abc.Ic = 0;
 
-    Motor::get(0).initialize();
-    QEncoder::initialize_all();
+    // Motor0::get().initialize();
+    Motor::get(1).initialize();
+    // QEncoder::initialize_all();
 
     //Set PWM of Motor0 in case of emergency
-    Motor::get(0).set_pwm_low();
+    Motor::get(1).set_pwm_low();
 }
 
 void loop() 
@@ -70,7 +71,7 @@ void loop()
     // Serial.println(posY);
     // Serial.println(posX - posY);
 
-    Serial.println(QEncoder::get(0).get_axis_position());
+    // Serial.println(QEncoder::get(0).get_axis_position());
 
     // delay(300);
 
