@@ -9,6 +9,7 @@
 #define ADC_SAMPLE_SIZE ADC_WIDTH_12Bit
 
 ADCon::ADCon(char channel_id)
+    : saved_sample(0)
 {
     adc_power_on();
     adc_set_clk_div(1);
@@ -44,9 +45,11 @@ ADCon::ADCon(char channel_id)
 
 float ADCon::get_sample()
 {
-    float ADCVal = adc1_get_raw(channel);
-    ADCVal = ((ADCVal * ADC_RESOLUTION)/DAMPMultiply)/ADC_RESISTOR;
-    return (ADCVal);
+    saved_sample = adc1_get_raw(channel) * ADC_RESOLUTION/DAMPMultiply/ADC_RESISTOR;
+    
+    return saved_sample;
 }
+
+float ADCon::get_saved_sample() { return saved_sample; }
 
 adc1_channel_t ADCon::get_channel() { return channel; }
