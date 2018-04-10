@@ -1,19 +1,29 @@
 #pragma once
 #include <driver/adc.h>
 
+enum class ADC_PIN
+{
+    M0_PHASE_A = 36,
+    M0_PHASE_B = 4,
+    M1_PHASE_A = 39,
+    M1_PHASE_B = 0
+};
 
 class ADCon 
 {
-public:
-    ADCon(char channel_id);
+    public:
+        ADCon(ADC_PIN pin);
 
-private:
-    adc1_channel_t channel;
-    float saved_sample;
+    private:
+        uint8_t pin;
+        float sample;
+        bool first_run;
+        bool sample_updated;
 
-  public:
-    float get_sample();
-    float get_saved_sample();
+        static float convert_sample(const uint16_t &sample);
+        void wait_save_restart_sample();
 
-    adc1_channel_t get_channel();
+    public:
+        bool ask_sample_updated();
+        float get_sample();
 };

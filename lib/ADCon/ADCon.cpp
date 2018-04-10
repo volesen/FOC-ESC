@@ -5,51 +5,55 @@
 #define ADC_RESISTOR 0.12
 #define DAMPMultiply 10
 
-#define ADC_SAMPLE_RANGE ADC_ATTEN_DB_0
-#define ADC_SAMPLE_SIZE ADC_WIDTH_12Bit
+#define ADC_ATTEN 0
+#define ADC_WIDTH 12
+#define ADC_CYCLES 1
+#define ADC_SAMPLES 1
+#define ADC_CLK_DIV 1
 
-ADCon::ADCon(char channel_id)
-    : saved_sample(0)
+ADCon::ADCon(ADC_PIN pin)
+    : pin((uint8_t)pin), sample(0), first_run(true), sample_updated(false)
 {
     adc_power_on();
-    adc_set_clk_div(1);
 
-    switch (channel_id)
-    {
-        case 0:
-            channel = ADC1_CHANNEL_0;
-            break;
-            
-        case 1:
-            channel = ADC1_CHANNEL_3;
-            break;
+    analogSetWidth(ADC_WIDTH);
+    analogSetCycles(ADC_CYCLES);
+    analogSetSamples(ADC_SAMPLES);
+    analogSetClockDiv(ADC_CLK_DIV);
+    analogSetAttenuation((adc_attenuation_t)ADC_ATTEN);
 
-        case 2:
-            channel = ADC1_CHANNEL_6;
-            break;
+    pinMode(this->pin, INPUT);
+    adcAttachPin(this->pin);
+}
 
-        case 3:
-            channel = ADC1_CHANNEL_7;
-            break;
-
-        default:
-            //throw error or something
-            return;
-    }
-
-    adc1_config_width(ADC_SAMPLE_SIZE);
-    adc1_config_channel_atten(channel, ADC_SAMPLE_RANGE);
-
-    pinMode(channel, INPUT);
+float ADCon::convert_sample(const uint16_t &sample)
+{
+    return sample * ADC_RESOLUTION / DAMPMultiply / ADC_RESISTOR;
+}
+bool ADCon::ask_sample_updated() 
+{ 
+    return sample_updated; 
+}
+void ADCon::wait_save_restart_sample()
+{
+    sample = convert_sample(adcEnd(pin));
+    sample_updated = true;
+    adcStart(pin);
 }
 
 float ADCon::get_sample()
 {
-    saved_sample = adc1_get_raw(channel) * ADC_RESOLUTION/DAMPMultiply/ADC_RESISTOR;
-    
-    return saved_sample;
+    if (first_run)                      //If first time getting
+    {
+        adcStart(pin);                  //Start sampling
+        wait_save_restart_sample();     //Wait for sample to finish, save sample, restart sampling
+
+        first_run = false;              //Mark first_run as false to not run again.
+    }
+    else if (!adcBusy(pin))             //If done sampling
+        wait_save_restart_sample();     //Save sample and restart sampling
+    else
+        sample_updated = false;         //Mark return value as old
+
+    return sample;
 }
-
-float ADCon::get_saved_sample() { return saved_sample; }
-
-adc1_channel_t ADCon::get_channel() { return channel; }

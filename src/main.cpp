@@ -15,7 +15,7 @@ Iabc abc;
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
-ADCon ADC_M0_A(0);
+// ADCon ADC_M0_A(0);
 // ADCon ADC_M0_B(1);
 // ADCon ADC_M1_A(2);
 // ADCon ADC_M1_B(3);
@@ -30,7 +30,7 @@ void setup()
 
     // Motor0::get().initialize();
     // Motor::get(0).initialize();
-    QEncoder::get(0);
+    // QEncoder::get(0);
     
 
     //Set PWM of Motor0 in case of emergency
@@ -78,7 +78,7 @@ void loop()
     // Serial.println(posY);
     // Serial.println(posX - posY);
 
-    Serial.println(QEncoder::get(0).get_axis_position());
+    // Serial.println(QEncoder::get(0).get_axis_position());
 
     delay(1000);
 
