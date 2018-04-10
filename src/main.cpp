@@ -4,6 +4,7 @@
 #include "PID.hpp"
 #include "Motor.hpp"
 #include "QEncoder.hpp"
+#include "ADCon.hpp"
 
 //PID and transform
 uint16_t angle = 0;
@@ -13,6 +14,11 @@ Iabc abc;
 
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
+
+ADCon ADC_M0_A(0);
+// ADCon ADC_M0_B(1);
+// ADCon ADC_M1_A(2);
+// ADCon ADC_M1_B(3);
 
 void setup()
 {
@@ -25,6 +31,7 @@ void setup()
     // Motor0::get().initialize();
     // Motor::get(0).initialize();
     QEncoder::get(0);
+    
 
     //Set PWM of Motor0 in case of emergency
     // Motor::get(1).set_pwm_low();
@@ -75,4 +82,9 @@ void loop()
 
     delay(1000);
 
+    // Serial.println(ADC_M0_A.get_sample()); //Sample Current through wire to Motor 0 Phase A
+
 }
+
+
+
