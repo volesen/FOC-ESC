@@ -1,5 +1,5 @@
-#define Encoder0_pin_int 23
-#define Encoder0_pin_sec 22
+#define Encoder0_pin_int 17
+#define Encoder0_pin_sec 16
 
 #define Encoder1_pin_int 4
 #define Encoder1_pin_sec 0
@@ -17,8 +17,8 @@ QEncoder::QEncoder(char pin_interrupt, char pin_secondary, void (*interrupt_hand
     : pin_interrupt(pin_interrupt), pin_secondary(pin_secondary), 
       axis_position(0), virtual_position(0)
 {
-    pinMode(pin_interrupt, INPUT_PULLUP);       //TODO:Test if pull down works instead
-    pinMode(pin_secondary, INPUT_PULLUP);
+    pinMode(pin_interrupt, INPUT);       //TODO:Test if pull down works instead
+    pinMode(pin_secondary, INPUT);
 
     attachInterrupt(digitalPinToInterrupt(      //Pin to interrupt on
                     pin_interrupt),                      
@@ -80,7 +80,7 @@ void IRAM_ATTR QEncoder::handle_interrupt(QEncoder* const encoder)
             ? encoder->virtual_position = 0 
             : encoder->virtual_position++;
     } 
-    else if(state)      //Counter-clockwise rotation
+    else if(!state)      //Counter-clockwise rotation
     {
         encoder->axis_position--;
         encoder->virtual_position == 0 
