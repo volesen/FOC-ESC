@@ -7,6 +7,14 @@
 #define TIMER_FREQUENCY (MCPWM_FREQUENCY/(TIMER_CLK_PRESCALE + 1))  //Final timer frequency
 #define PWM_PERIOD (TIMER_FREQUENCY/PWM_FREQUENCY)                  //PWM period length in timer ticks
 
+#define Motor0_pin_A 12
+#define Motor0_pin_B 14
+#define Motor0_pin_C 27
+
+#define Motor1_pin_A 25
+#define Motor1_pin_B 33
+#define Motor1_pin_C 32
+
 
 #include <Arduino.h>
 
@@ -159,7 +167,7 @@ void Motor::set_pwm_high()
 bool Motor0::_initialized = false;
 
 Motor0::Motor0()
-    : _pins{12, 14, 27}
+    : _pins{Motor0_pin_A, Motor0_pin_B, Motor0_pin_C}
 {
     _pwm = motor_pwm(0, 0, 0);
 }
@@ -267,7 +275,7 @@ void Motor0::update_pwm()
 bool Motor1::_initialized = false;
 
 Motor1::Motor1()
-    : _pins{25, 33, 32}
+    : _pins{Motor1_pin_A, Motor1_pin_B, Motor1_pin_C}
 {
     _pwm = motor_pwm(0, 0, 0);
 }

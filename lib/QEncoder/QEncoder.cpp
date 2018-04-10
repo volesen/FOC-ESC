@@ -1,8 +1,8 @@
-#define Encoder0_pin_int 23
-#define Encoder0_pin_sec 22
+#define Encoder0_pin_int 17
+#define Encoder0_pin_sec 16
 
-#define Encoder1_pin_int 17
-#define Encoder1_pin_sec 16
+#define Encoder1_pin_int 4
+#define Encoder1_pin_sec 0
 
 #include <Arduino.h>
 #include "QEncoder.hpp"
