@@ -1,7 +1,7 @@
 #define MCPWM_BASE_CLK (2 * APB_CLK_FREQ)                       //2*APB_CLK_FREQ = 160Mhz
 #define MCPWM_CLK_PRESCL 0                                      //MCPWM clock prescale 
 #define TIMER_CLK_PRESCALE 0                                    //Timer submodule prescale (=160 MHz)
-#define PWM_FREQUENCY (20*1000)                                 //PWM frequency (=20KHz with resolution of (160MHz/20KHz=8000) at timer = 160MHz)
+#define PWM_FREQUENCY (16*1000)                                 //PWM frequency (=16KHz with resolution of (160MHz/16KHz=10000) at timer = 160MHz)
 
 #define MCPWM_FREQUENCY (MCPWM_BASE_CLK/(MCPWM_CLK_PRESCL +1))      //Final frequency of MCPWM module
 #define TIMER_FREQUENCY (MCPWM_FREQUENCY/(TIMER_CLK_PRESCALE + 1))  //Final timer frequency
@@ -218,9 +218,9 @@ Motor0& Motor0::initialize()
         //PWM0_OUT0A_IDX is the index for operator 0A in MCPWM module 0
         //PWM0_OUT0A_IDX +1 is PWM0_OUT0B_IDX, +2 is PWM0_OUT1A_IDX
         //The two last parameters are output signal inversion and output control/enable inversion.
-        //The signal is inverted because it seems inverted in the first place. 
+        //The signal is not inverted.
         //Output control/enable inversion is disabled as it causes things to not turn off completely.
-        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2, 1, 0);
+        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2, 0, 0);
     }    
 
     //Set up timer
@@ -326,9 +326,9 @@ Motor1& Motor1::initialize()
         //PWM0_OUT0A_IDX is the index for operator 0A in MCPWM module 0
         //PWM0_OUT0A_IDX, +1 is PWM0_OUT0B_IDX, +2 is PWM0_OUT1A_IDX
         //The two last parameters are output signal inversion and output control/enable inversion.
-        //The signal is inverted because it seems inverted in the first place. 
+        //The signal is not inverted.
         //Output control/enable inversion is disabled as it causes things to not turn off completely.
-        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2 + 1, 1, 0);
+        gpio_matrix_out(_pins[i], PWM0_OUT0A_IDX + i*2 + 1, 0, 0);
     }    
 
     //Set up timer
