@@ -4,7 +4,7 @@
 #include "PID.hpp"
 #include "Motor.hpp"
 #include "QEncoder.hpp"
-#include "ADCon.hpp"
+#include "ADC_Motor.hpp"
 
 uint32_t iteration = 0;
 
@@ -17,10 +17,13 @@ Iabc abc;
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
-ADCon ADC_M0_A(ADC_PIN::M0_PHASE_A);
-ADCon ADC_M0_B(ADC_PIN::M0_PHASE_A);
-ADCon ADC_M1_A(ADC_PIN::M1_PHASE_A);
-ADCon ADC_M1_B(ADC_PIN::M1_PHASE_A);
+// ADC_Phase ADC_M0_A(ADC_PIN::M0_PHASE_A);
+// ADC_Phase ADC_M0_B(ADC_PIN::M0_PHASE_B);
+// ADC_Phase ADC_M1_A(ADC_PIN::M1_PHASE_A);
+// ADC_Phase ADC_M1_B(ADC_PIN::M1_PHASE_B);
+
+ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
+ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
 
 void setup()
 {
@@ -35,13 +38,31 @@ void setup()
     Motor::get(0).set_pwm(1);
     // Motor::get(0).initialize();
     // QEncoder::get(0);
-    
+
 
     //Set PWM of Motor0 in case of emergency
     // Motor::get(0).initialize().set_pwm(1, 1, 1);
     Serial.println();
     Serial.println();
     Serial.println();
+
+    // float pa, pb;
+
+    // ADC_Motor0.get_samples(pa, pb);
+
+    // // float t = ADC_M0_A.get_sample();
+
+    // Serial.print(pa);
+    // Serial.print(" ");
+    // Serial.print(pb);
+
+    // adcStart((uint8_t)ADC_PIN::M0_PHASE_A);
+    // adcStart((uint8_t)ADC_PIN::M0_PHASE_A);
+    // delay(1);
+    // bool t = adcBusy((uint8_t)ADC_PIN::M0_PHASE_A);
+    // ADC_M0_A.get_sample();
+    // ADC_M0_A.get_sample();
+    // Serial.println(t);
 
     // ADC_M0_A.get_sample();
     // ADC_M0_B.get_sample();
@@ -50,51 +71,28 @@ void setup()
 
     // for (int m = 0; m < 5; m++)
     // {
-    //     uint32_t start = micros();
+        uint32_t start = micros();
 
-    //     int i, j, x, y;
-    //     i = j = x = y = 0;
+        float a, b, c, d;
+        c = d = 0;
 
-    //     float a, b;
+        for (int i = 0; i < 40000; i++)
+        {
+            ADC_Motor0.get_samples(a, b);
+            c += a;
+            d += b;
 
-    //     while (i < 40000 || j < 40000 || x < 40000 || y < 40000)
-    //     {
-    //         a = ADC_M0_A.get_sample();
-    //         if (ADC_M0_A.ask_sample_updated())
-    //         {
-    //             i++;
-    //             b += a;
-    //         }
-    //         a = ADC_M0_B.get_sample();
-    //         if (ADC_M0_B.ask_sample_updated())
-    //         {
-    //             j++;
-    //             b += a;
-    //         }
-    //         a = ADC_M1_A.get_sample();
-    //         if (ADC_M1_A.ask_sample_updated())
-    //         {
-    //             x++;
-    //             b += a;
-    //         }
-    //         a = ADC_M1_B.get_sample();
-    //         if (ADC_M1_B.ask_sample_updated())
-    //         {
-    //             y++;
-    //             b += a;
-    //         }
-    //     }
+            ADC_Motor1.get_samples(a, b);
+            c += a;
+            d += b;
+        }
 
-    //     Serial.println("----------------");
-    //     //Frequency of full cycle samples given in kHz
-    //     Serial.println(40*1000/((micros() - start)*pow10(-6)));
-    //     //Average value
-    //     Serial.println(b / (i + j + x + y));
-    //     //Number of iterations on each channel
-    //     Serial.println(i);
-    //     Serial.println(j);
-    //     Serial.println(x);
-    //     Serial.println(y);
+        Serial.println("----------------");
+        //Frequency of full cycle samples given in kHz
+        Serial.println(40*1000/((micros() - start)*pow10(-6)));
+        //Average value
+        Serial.println(c / 40000);
+        Serial.println(d / 40000);
     // }
 }
 
