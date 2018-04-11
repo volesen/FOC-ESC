@@ -23,6 +23,8 @@ struct motor_pwm
       /**
        * @brief Scales phase magnitudes so that the neutral point is at PWM_PERIOD / 2 and bound is at [0; PWM_PERIOD].
        * 
+       * @remark Phases outside of [-bound_max; bound_max] results in undefined behavior. No protection because of speed requirements.
+       * 
        * @param float bound_max : maximum magnitude to use as reference when scaling
        * 
        * @return A new motor_pwm with values scaled to valid PWM ranges.
@@ -31,6 +33,8 @@ struct motor_pwm
 
       /**
        * @brief Scales phase magnitudes so that the neutral point is at 0 and bound is at [-bound_max; bound_max].
+       * 
+       * @remark Phases outside of [0; PWM_PERIOD] results in undefined behavior. No protection because of speed requirements.
        * 
        * @param float bound_max : maximum magnitude to use as reference when scaling
        * 
@@ -127,6 +131,8 @@ class Motor
 
       /**
        * @brief Initializes all Motor0 and Motor1.
+       * 
+       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
        */
       static void initialize_all(float initial_pwm_max_bound = 0);
 
@@ -188,6 +194,8 @@ class Motor0 : public Motor
 
       /**
        * @brief Initialize motor by setting up PWM controls.
+       * 
+       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
        */
       Motor0& initialize(float initial_pwm_max_bound = 0);
 };
@@ -243,6 +251,8 @@ class Motor1 : public Motor
 
       /**
        * @brief Initialize motor by setting up PWM controls.
+       * 
+       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
        */
       Motor1& initialize(float initial_pwm_max_bound = 0);
 };

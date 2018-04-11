@@ -17,11 +17,6 @@ Iabc abc;
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
-// ADC_Phase ADC_M0_A(ADC_PIN::M0_PHASE_A);
-// ADC_Phase ADC_M0_B(ADC_PIN::M0_PHASE_B);
-// ADC_Phase ADC_M1_A(ADC_PIN::M1_PHASE_A);
-// ADC_Phase ADC_M1_B(ADC_PIN::M1_PHASE_B);
-
 ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
 ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
 
@@ -33,7 +28,7 @@ void setup()
     // abc.Ib = 0;
     // abc.Ic = 0;
 
-    
+
 
     Motor::get(0).initialize().set_pwm_low();
     Motor::get(0).set_pwm(2);

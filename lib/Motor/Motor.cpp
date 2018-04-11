@@ -52,22 +52,32 @@ float motor_pwm::get_max() const
 
 motor_pwm motor_pwm::get_scaled(const float &bound_max) const 
 {
-    float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
-    static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
+    if (bound_max == 0)
+        return motor_pwm(PWM_PERIOD / 2, PWM_PERIOD / 2, PWM_PERIOD / 2);
+    else
+    {
+        float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
+        static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
 
-    return motor_pwm(A * scaler + range_shifter, 
-                     B * scaler + range_shifter, 
-                     C * scaler + range_shifter);
+        return motor_pwm(A * scaler + range_shifter,    //Returns value in [0; PWM_PERIOD]
+                        B * scaler + range_shifter, 
+                        C * scaler + range_shifter);
+    }
 }
 
 motor_pwm motor_pwm::get_descaled(const float &bound_max) const 
 {
-    float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
-    static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
+    if (bound_max == 0)
+        return motor_pwm(0, 0, 0);
+    else
+    {
+        float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
+        static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
 
-    return motor_pwm((A - range_shifter) / scaler, 
-                     (B - range_shifter) / scaler, 
-                     (C - range_shifter) / scaler);
+        return motor_pwm((A - range_shifter) / scaler,  //Returns value in [-bound_max; bound_max]
+                         (B - range_shifter) / scaler,
+                         (C - range_shifter) / scaler);
+    }
 }
 
 ///====================================================================================
