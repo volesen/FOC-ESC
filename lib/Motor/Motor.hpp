@@ -128,12 +128,12 @@ class Motor
       /**
        * @brief Initializes all Motor0 and Motor1.
        */
-      static void initialize_all();
+      static void initialize_all(float initial_pwm_max_bound = 0);
 
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      virtual Motor& initialize() = 0;
+      virtual Motor& initialize(float initial_pwm_max_bound = 0) = 0;
       
 };
 
@@ -189,7 +189,7 @@ class Motor0 : public Motor
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      Motor0& initialize();
+      Motor0& initialize(float initial_pwm_max_bound = 0);
 };
 
 class Motor1 : public Motor
@@ -244,5 +244,5 @@ class Motor1 : public Motor
       /**
        * @brief Initialize motor by setting up PWM controls.
        */
-      Motor1& initialize();
+      Motor1& initialize(float initial_pwm_max_bound = 0);
 };

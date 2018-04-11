@@ -33,6 +33,8 @@ void setup()
     // abc.Ib = 0;
     // abc.Ic = 0;
 
+    
+
     Motor::get(0).initialize().set_pwm_low();
     Motor::get(0).set_pwm(2);
     Motor::get(0).set_pwm(1);

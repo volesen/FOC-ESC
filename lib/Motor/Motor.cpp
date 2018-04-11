@@ -87,12 +87,6 @@ Motor& Motor::get(char id)
     }
 }
 
-void Motor::initialize_all()
-{
-    Motor::get(0).initialize();
-    Motor::get(1).initialize();
-}
-
 float Motor::get_pwm_max_bound() const
 {
     // if (!_initialized)
@@ -161,6 +155,12 @@ void Motor::set_pwm_high()
     // }
 }
 
+void Motor::initialize_all(float initial_pwm_max_bound)
+{
+    Motor::get(0).initialize(initial_pwm_max_bound);
+    Motor::get(1).initialize(initial_pwm_max_bound);
+}
+
 ///====================================================================================
 ///Motor0 definition
 ///====================================================================================
@@ -194,7 +194,7 @@ bool Motor0::get_initialized() const
     return Motor0::_initialized;
 }
 
-Motor0& Motor0::initialize()
+Motor0& Motor0::initialize(float initial_pwm_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -257,6 +257,9 @@ Motor0& Motor0::initialize()
     //Set initialized state so that methods can be used
     _initialized = true;
 
+    //Set initial max pwm bound
+    _pwm_max_bound = initial_pwm_max_bound;
+
     //Return motor so that settings can be set up immediately after with easy syntax
     return get();
 }
@@ -302,7 +305,7 @@ bool Motor1::get_initialized() const
     return Motor1::_initialized;
 }
 
-Motor1& Motor1::initialize()
+Motor1& Motor1::initialize(float initial_pwm_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -364,6 +367,9 @@ Motor1& Motor1::initialize()
 
     //Set initialized state so that methods can be used
     _initialized = true;
+
+    //Set initial max pwm bound
+    _pwm_max_bound = initial_pwm_max_bound;
 
     //Return motor so that settings can be set up immediately after with easy syntax
     return get();
