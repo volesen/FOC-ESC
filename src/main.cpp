@@ -24,24 +24,24 @@ void setup()
 {
     Serial.begin(9600);
 
+    Serial.println();
+    Serial.println();
+    Serial.println();
+
     // abc.Ia = 0;
     // abc.Ib = 0;
     // abc.Ic = 0;
 
+    Motor::initialize_all();
+    QEncoder::initialize_all();
 
 
-    Motor::get(0).initialize().set_pwm_low();
-    Motor::get(0).set_pwm(2);
-    Motor::get(0).set_pwm(1);
     // Motor::get(0).initialize();
     // QEncoder::get(0);
 
 
     //Set PWM of Motor0 in case of emergency
     // Motor::get(0).initialize().set_pwm(1, 1, 1);
-    Serial.println();
-    Serial.println();
-    Serial.println();
 
     // float pa, pb;
 
@@ -68,33 +68,34 @@ void setup()
 
     // for (int m = 0; m < 5; m++)
     // {
-        uint32_t start = micros();
+        // uint32_t start = micros();
 
-        float a, b, c, d;
-        c = d = 0;
+        // float a, b, c, d;
+        // c = d = 0;
 
-        for (int i = 0; i < 40000; i++)
-        {
-            ADC_Motor0.get_samples(a, b);
-            c += a;
-            d += b;
+        // for (int i = 0; i < 40000; i++)
+        // {
+        //     ADC_Motor0.get_samples(a, b);
+        //     c += a;
+        //     d += b;
 
-            ADC_Motor1.get_samples(a, b);
-            c += a;
-            d += b;
-        }
+        //     ADC_Motor1.get_samples(a, b);
+        //     c += a;
+        //     d += b;
+        // }
 
-        Serial.println("----------------");
-        //Frequency of full cycle samples given in kHz
-        Serial.println(40*1000/((micros() - start)*pow10(-6)));
-        //Average value
-        Serial.println(c / 40000);
-        Serial.println(d / 40000);
+        // Serial.println("----------------");
+        // //Frequency of full cycle samples given in kHz
+        // Serial.println(40*1000/((micros() - start)*pow10(-6)));
+        // //Average value
+        // Serial.println(c / 40000);
+        // Serial.println(d / 40000);
     // }
 }
 
 void loop() 
 {
+    
     // dq = Transform::de_phase(angle, abc);
 
     // dq.Id = PID_waste.update(dq.Id, (float)0);
@@ -132,19 +133,6 @@ void loop()
     // Serial.println("---");
     // delayMicroseconds(1000);
 
-    // Serial.println("-----------------");
-    // Serial.println(posX);
-    // Serial.println(posY);
-    // Serial.println(posX - posY);
-
-    // Serial.println(QEncoder::get(0).get_axis_position());
-    // Serial.println(ADC_M0_A.get_sample());
-
-    // Serial.print(" ");
-    // Serial.println(ADC_M0_A.ask_sample_updated());
-    // delay(1000);
-
-    // Serial.println(ADC_M0_A.get_sample()); //Sample Current through wire to Motor 0 Phase A
 
 }
 

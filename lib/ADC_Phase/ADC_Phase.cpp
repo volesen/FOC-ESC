@@ -6,7 +6,7 @@
 #define ADC_RESISTOR 0.12
 #define DAMPMultiply 10
 
-#define ADC_ATTEN 0
+#define ADC_ATTEN 3
 #define ADC_WIDTH 12
 #define ADC_CYCLES 8
 #define ADC_SAMPLES 1
