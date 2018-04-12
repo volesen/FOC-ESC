@@ -32,7 +32,7 @@ void QEncoder::initialize_all()
     get(1);
 }
 
-QEncoder& QEncoder::get(char id)
+QEncoder& IRAM_ATTR QEncoder::get(char id)
 {
     //I do not feel like protecting against people deleting the object the pointer points to
     //This seems unnecessary given the circumstances the code is going to be used in.

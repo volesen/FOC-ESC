@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 class QEncoder
 {
     protected:
@@ -8,8 +10,8 @@ class QEncoder
       const char pin_interrupt;
       const char pin_secondary;
 
-      uint32_t axis_position;
-      uint32_t virtual_position;
+      volatile std::atomic<uint32_t> axis_position;
+      volatile std::atomic<uint32_t> virtual_position;
 
       static void IRAM_ATTR handle_interrupt_encoder0();
       static void IRAM_ATTR handle_interrupt_encoder1();
