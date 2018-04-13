@@ -186,7 +186,10 @@ Motor0& Motor0::get()
 {
     //Is instantiated on first call. 
     //Subsequent calls simply return the already existing motor
-    static Motor0 motor;        
+    static Motor0 motor;
+
+    if (!motor._initialized)
+        motor.initialize();
 
     return motor;
 }
@@ -297,7 +300,10 @@ Motor1& Motor1::get()
 {
     //Is instantiated on first call. 
     //Subsequent calls simply return the already existing motor
-    static Motor1 motor;        
+    static Motor1 motor;
+
+    if (!motor._initialized)
+        motor.initialize();        
 
     return motor;
 }

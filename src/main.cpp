@@ -6,6 +6,8 @@
 #include "QEncoder.hpp"
 #include "ADC_Motor.hpp"
 
+#include "ASerial.hpp"
+
 uint32_t iteration = 0;
 
 //PID and transform
@@ -17,25 +19,27 @@ Iabc abc;
 PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
 PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
-ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
-ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
+// ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
+// ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
 
 void setup()
 {
-    Serial.begin(9600);
+    //SERIAL USB PIN ON YOUR THING IS 1... or maybe UART0
+    // Serial.begin(9600);
+    // pinMode(1, OUTPUT);
 
-    Serial.println();
-    Serial.println();
-    Serial.println();
+    // Serial.println();
+    // Serial.println();
+    // Serial.println();
 
     // abc.Ia = 0;
     // abc.Ib = 0;
     // abc.Ic = 0;
 
-    Motor::initialize_all();
-    QEncoder::initialize_all();
-
-
+    // Motor::initialize_all();
+    // QEncoder::initialize_all();
+    
+    // Serial.println(xPortGetCoreID());
     // Motor::get(0).initialize();
     // QEncoder::get(0);
 
@@ -95,7 +99,17 @@ void setup()
 
 void loop() 
 {
-    
+    // Serial.println("loop");
+
+    char thing = 'h';
+    ASerial::get().send_byte(thing);
+    delay(400);
+
+    // digitalWrite(1, HIGH);
+    // delay(500);
+    // digitalWrite(1, LOW);
+    // delay(500);
+
     // dq = Transform::de_phase(angle, abc);
 
     // dq.Id = PID_waste.update(dq.Id, (float)0);

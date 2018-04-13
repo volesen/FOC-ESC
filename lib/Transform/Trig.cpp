@@ -3,6 +3,7 @@
 */
 
 #include "Trig.hpp"
+#include "ESC_Globals.hpp"
 
 /*
 	Index of mechanical angle in lookup table

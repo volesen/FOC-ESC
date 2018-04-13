@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 #include "QEncoder.hpp"
-#include "Transform.hpp"
+#include "ESC_Globals.hpp"
 
 QEncoder::~QEncoder()
 {
