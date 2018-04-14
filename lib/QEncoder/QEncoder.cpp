@@ -75,17 +75,17 @@ void IRAM_ATTR QEncoder::handle_interrupt(QEncoder* const encoder)
 
     if(state)           //Clockwise rotation
     {   
-        encoder->axis_position++;
-        encoder->virtual_position == ELECTRIC_ROTATION_STEPS 
-            ? encoder->virtual_position = 0 
-            : encoder->virtual_position++;
-    } 
-    else if(!state)      //Counter-clockwise rotation
-    {
         encoder->axis_position--;
         encoder->virtual_position == 0 
             ? encoder->virtual_position = ELECTRIC_ROTATION_STEPS 
             : encoder->virtual_position--;
+    } 
+    else                //Counter-clockwise rotation
+    {
+        encoder->axis_position++;
+        encoder->virtual_position == ELECTRIC_ROTATION_STEPS 
+            ? encoder->virtual_position = 0 
+            : encoder->virtual_position++;
     }
 }
 

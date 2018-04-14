@@ -22,15 +22,20 @@ PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 // ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
 // ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
 
+
 void setup()
 {
     //SERIAL USB PIN ON YOUR THING IS 1... or maybe UART0
     // Serial.begin(9600);
-    // pinMode(1, OUTPUT);
+    // Serial.println();
+    // Serial.println();
+    // Serial.println();
 
-    // Serial.println();
-    // Serial.println();
-    // Serial.println();
+    // Serial.println(get_bit(a, 0));
+    // Serial.println(get_bit(a, 7));
+    // Serial.println(get_bit(a, 6));
+
+    // pinMode(1, OUTPUT);
 
     // abc.Ia = 0;
     // abc.Ib = 0;
@@ -100,10 +105,17 @@ void setup()
 void loop() 
 {
     // Serial.println("loop");
+    // ASerial::get();
+    // ASerial::get().update_scope_buffer();
 
-    char thing = 'h';
-    ASerial::get().send_byte(thing);
-    delay(400);
+    // for (int i = 0; i < ASerial::get().scope_buffer_data_available; i++)
+    //     Serial.println(ASerial::get().scope_buffer[i]);
+
+    // Serial.println(xPortGetCoreID());
+
+    Serial.println(ASerial::get().get_speed(motor_id::motor1));
+    delay(1000);
+    
 
     // digitalWrite(1, HIGH);
     // delay(500);

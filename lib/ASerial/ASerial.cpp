@@ -1,0 +1,224 @@
+#include "ASerial.hpp"
+
+void ASerial::update_loop(void *input)
+{
+    //Ideally this should never be needed, but it is here in case there is a bug, 
+    //so that everything doesn't just hang
+    Serial.setTimeout(8);
+
+    Serial.begin(ASerial_BAUDRATE);
+
+    while (true)
+    {
+        //If no update to scope_buffer or there are not three packets, continue
+        //If scope_buffer was updated, check scope_buffer for valid transmission,
+        //continue if no valid transmission
+        if (!get().update_scope_buffer() ||
+            !get().check_validity())
+            continue;
+        
+        //If the code makes it down here, the transmission is valid
+        //Process the transmission and apply changes
+        get().process_transmission();
+
+        // ATTENTION: Uncomment if Arduino framework is prevented from running
+        // vTaskDelay(10 / portTICK_PERIOD_MS);
+    }    
+}
+
+
+
+#pragma region Helper methods
+bool ASerial::get_bit(uint8_t byte, uint8_t bit)
+{
+    //AND with single bit mask
+    //Check if over 0
+    return (byte & (1 << bit)) > 0;
+}
+
+bool ASerial::calculate_parity(uint8_t byte)
+{
+    // CREDIT:
+    // By Sean Eron Anderson
+    // seander@cs.stanford.edu
+    // https://graphics.stanford.edu/~seander/bithacks.html#ParityParallel
+    // 1 if odd number of bits set
+    // 0 if even number of bits set
+    byte ^= byte >> 4;
+    byte &= 0xf;
+    return (0x6996 >> byte) & 1 == 1;
+}
+
+
+void ASerial::clear_scoped_buffer()
+{
+    scope_buffer_data_available = 0;
+}
+
+#pragma endregion
+
+#pragma region Transmission error checking
+bool ASerial::check_validity()
+{
+    Serial.println(get().scope_buffer[0]);
+    Serial.println(get().scope_buffer[1]);
+    Serial.println(get().scope_buffer[2]);
+
+    return false;
+    // return (check_ids() &&
+    //         check_parity() &&
+    //         check_lparity());
+}
+
+
+bool ASerial::check_ids()
+{
+    return (GET_ID_BIT(scope_buffer[0]) &&
+            !GET_ID_BIT(scope_buffer[1]) &&
+            GET_ID_BIT(scope_buffer[2]));
+}
+
+bool ASerial::check_parity()
+{
+    return (calculate_parity(scope_buffer[0]) &&
+            !calculate_parity(scope_buffer[1]) &&
+            !calculate_parity(scope_buffer[2]));
+}
+
+bool ASerial::check_lparity()
+{
+    return (GET_PARITY_BIT(scope_buffer[1]) == GET_LPARITY_BIT(scope_buffer[0], 0) &&
+            GET_PARITY_BIT(scope_buffer[2]) == GET_LPARITY_BIT(scope_buffer[0], 1));
+}
+
+#pragma endregion
+
+#pragma region Process Transmission
+bool ASerial::update_scope_buffer()
+{   
+    //We are not going to do the cyclic efficient array storrage
+    //that we did in the PID loop.
+    //We are only working with 3 uint8_t here so the complexity is unnecessary.
+    uint32_t rx_buffer_available = Serial.available();
+
+    //No change if there is nothing to read
+    if (rx_buffer_available == 0)
+        return false;
+    
+    //Initialize num_bytes_to_read with if statements
+    uint8_t num_bytes_to_read;
+    //If scope_buffer already full (previous transmission invalid)
+    if (scope_buffer_data_available == 3)
+    {
+        num_bytes_to_read = 1;
+        scope_buffer_data_available--;
+    }
+    //If enough data in rx buffer to fill out scope_buffer
+    else if (rx_buffer_available >= 3 - scope_buffer_data_available)
+        num_bytes_to_read = 3 - scope_buffer_data_available;
+    //Else not enough data in rx buffer to fill out scope_buffer
+    else
+        num_bytes_to_read = rx_buffer_available;
+        
+
+    //Shift scope_buffer to make room for read
+    if (num_bytes_to_read == 1)
+    {
+        scope_buffer[2] = scope_buffer[1];
+        scope_buffer[1] = scope_buffer[0];
+    }
+    else if (num_bytes_to_read == 2)
+        scope_buffer[2] = scope_buffer[0];
+
+    //Read bytes to scope_buffer
+    scope_buffer_data_available += Serial.readBytes(scope_buffer, num_bytes_to_read);
+
+    //Return true if there are three packets to read
+    return scope_buffer_data_available == 3;
+}
+
+void ASerial::process_transmission()
+{
+    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[0]);
+
+    _direction[target_motor_id] = GET_DIRECTION_BIT(scope_buffer[0]);
+
+    //First data packet contains the lower order speed
+    //Second data packet contains the higher order speed
+    _speed[target_motor_id] = GET_SPEED_BITS(scope_buffer[1]) |
+                             (GET_SPEED_BITS(scope_buffer[2]) << 6);
+
+    //Set update status so external code knows.
+    //All get properties have been updated, so get_speed is ready now.
+    _updated = true;
+
+    //If controller requests current position
+    if (GET_POS_REQ_BIT(scope_buffer[0]))
+    {
+        //Copy position to avoid two atomic checks
+        //and to avoid a block if position is updated inbetween serial byte writes
+        uint16_t position = _position[target_motor_id];
+        //Put current position into tx buffer
+        Serial.write((uint8_t *)&position, 2);
+        //Block and force tx buffer to send
+        Serial.flush();
+    }
+
+    //Clear scoped_buffer because transmission has been processed.
+    //This opens up room for the next transmission.
+    clear_scoped_buffer();
+
+}
+
+#pragma endregion 
+
+
+ASerial& ASerial::get()
+{
+    static ASerial com(ASerial_BAUDRATE);
+
+    return com;
+}
+
+ASerial::ASerial(int baudrate)
+    : _updated(false)
+{
+    //Initialize fields
+    scope_buffer_data_available = 0;
+    for (int i = 0; i < 3; i++)
+        scope_buffer[i] = 0;
+
+    for (int i = 0; i < NUM_MOTORS; i++)
+    {
+        std::atomic_init(_direction + i, true);
+        _speed[i] = 0;
+        _position[i] = 0;
+    }
+    
+    //The update loop is given priority 0 which is the lowest priority.
+    //We might hog all resources from the Arduino framework if we raise the priority.
+    xTaskCreatePinnedToCore(update_loop, "update_loop", 4 * 1024, NULL, 0, NULL, 0);
+}
+
+bool ASerial::ask_updated()
+{
+    return _updated;
+}
+
+float ASerial::get_speed(motor_id motor)
+{
+    //Copied to minimize chance of being blocked by accessing atomic variables
+    //which creates two opportunities for a block
+    float speed = (float)_speed[(uint8_t)motor] 
+                * (_direction[(uint8_t)motor] ? 1 : -1); //Make negative if CC direction
+
+    if (_updated)
+        _updated = false;
+
+    return speed / MAX_INPUT_SPEED * MAX_OUTPUT_SPEED;
+}
+
+void ASerial::update_position(uint16_t position, motor_id motor)
+{
+    _position[(uint8_t)motor] = position;
+}
