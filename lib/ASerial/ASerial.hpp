@@ -2,46 +2,9 @@
 
 #include <stdint.h>
 #include <atomic>
-
 #include <Arduino.h>
 
 #include "ESC_Globals.hpp"
-
-#define TX_PIN 1
-#define RX_PIN 3
-
-#define MAX_INPUT_SPEED 4095.0
-#define MAX_OUTPUT_SPEED 1.00
-
-#define ASerial_BAUDRATE 9600       //TODO:use 921600 instead
-
-#pragma region Bit selectors
-//Most significant bit is leftmost
-//Bit 7 is the most significant bit
-
-//Master packet:
-//ID  Parity  Linked parity   Position request  Direction   Motor ID
-//{1} {1}     {2}             {1}               {1}         {2}
-//Data packets
-//ID  Parity  Speed
-//{1} {1}     {6}
-
-#define GET_ID_BIT(byte) get_bit(byte, 7)
-#define GET_PARITY_BIT(byte) get_bit(byte, 6)
-
-#define GET_LPARITY_BIT(byte, id_data) get_bit(byte, 5 - id_data) //id_data \in [0, 1]
-#define GET_POS_REQ_BIT(byte) get_bit(byte, 3)
-#define GET_DIRECTION_BIT(byte) get_bit(byte, 2)
-#define GET_MOTOR_ID_BITS(byte) byte & 3 //Mask away everything but the two least significant bits
-#define GET_SPEED_BITS(byte) byte & 63   //Mask away the two most significant bits
-
-#pragma endregion
-
-enum class motor_id
-{
-    motor0,
-    motor1
-};
 
 class ASerial
 {
@@ -104,6 +67,7 @@ class ASerial
   public:
     static ASerial &get();
 
+    #pragma region Properties
     bool ask_updated();
 
     float get_speed(motor_id motor);
@@ -119,4 +83,6 @@ class ASerial
      * 
      */
     void update_position(uint16_t position, motor_id motor);
+
+    #pragma endregion
 };

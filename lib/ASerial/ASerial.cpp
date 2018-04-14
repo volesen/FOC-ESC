@@ -1,5 +1,46 @@
 #include "ASerial.hpp"
 
+#define TX_PIN 1
+#define RX_PIN 3
+
+#define MAX_INPUT_SPEED 4095.0
+#define MAX_OUTPUT_SPEED 1.00
+
+#define ASerial_BAUDRATE 921600
+
+#pragma region Bit selectors
+//Send order:
+//0. data0, 1. data1, 2. master
+
+//scope_buffer order:
+//0. master, 1. data1, 2. data0
+
+#define PDATA0 2
+#define PDATA1 1
+#define PMASTER 0
+
+//Most significant bit is leftmost
+//Bit 7 is the most significant bit
+
+//Master packet:
+//ID  Parity  Linked parity   Position request  Direction   Motor ID
+//{1} {1}     {2}             {1}               {1}         {2}
+//Data packets
+//ID  Parity  Speed
+//{1} {1}     {6}
+
+#define GET_ID_BIT(byte) get_bit(byte, 7)
+#define GET_PARITY_BIT(byte) get_bit(byte, 6)
+
+#define GET_LPARITY_BIT(byte, id_data) get_bit(byte, 5 - id_data) //id_data \in [0, 1]
+#define GET_POS_REQ_BIT(byte) get_bit(byte, 3)
+#define GET_DIRECTION_BIT(byte) get_bit(byte, 2)
+#define GET_MOTOR_ID_BITS(byte) (byte & 3) //Mask away everything but the two least significant bits
+#define GET_SPEED_BITS(byte) (byte & 63)   //Mask away the two most significant bits
+
+#pragma endregion
+
+
 void ASerial::update_loop(void *input)
 {
     //Ideally this should never be needed, but it is here in case there is a bug, 
@@ -16,7 +57,7 @@ void ASerial::update_loop(void *input)
         if (!get().update_scope_buffer() ||
             !get().check_validity())
             continue;
-        
+
         //If the code makes it down here, the transmission is valid
         //Process the transmission and apply changes
         get().process_transmission();
@@ -60,35 +101,30 @@ void ASerial::clear_scoped_buffer()
 #pragma region Transmission error checking
 bool ASerial::check_validity()
 {
-    Serial.println(get().scope_buffer[0]);
-    Serial.println(get().scope_buffer[1]);
-    Serial.println(get().scope_buffer[2]);
-
-    return false;
-    // return (check_ids() &&
-    //         check_parity() &&
-    //         check_lparity());
+    return (check_ids() &&
+            check_parity() &&
+            check_lparity());
 }
 
 
 bool ASerial::check_ids()
 {
-    return (GET_ID_BIT(scope_buffer[0]) &&
-            !GET_ID_BIT(scope_buffer[1]) &&
-            GET_ID_BIT(scope_buffer[2]));
+    return (GET_ID_BIT(scope_buffer[PDATA0]) &&
+            !GET_ID_BIT(scope_buffer[PDATA1]) &&
+            GET_ID_BIT(scope_buffer[PMASTER]));
 }
 
 bool ASerial::check_parity()
 {
-    return (calculate_parity(scope_buffer[0]) &&
-            !calculate_parity(scope_buffer[1]) &&
-            !calculate_parity(scope_buffer[2]));
+    return (!calculate_parity(scope_buffer[PDATA0]) &&
+            !calculate_parity(scope_buffer[PDATA1]) &&
+            calculate_parity(scope_buffer[PMASTER]));
 }
 
 bool ASerial::check_lparity()
 {
-    return (GET_PARITY_BIT(scope_buffer[1]) == GET_LPARITY_BIT(scope_buffer[0], 0) &&
-            GET_PARITY_BIT(scope_buffer[2]) == GET_LPARITY_BIT(scope_buffer[0], 1));
+    return (GET_PARITY_BIT(scope_buffer[PDATA0]) == GET_LPARITY_BIT(scope_buffer[PMASTER], 0) &&
+            GET_PARITY_BIT(scope_buffer[PDATA1]) == GET_LPARITY_BIT(scope_buffer[PMASTER], 1));
 }
 
 #pragma endregion
@@ -129,9 +165,13 @@ bool ASerial::update_scope_buffer()
     }
     else if (num_bytes_to_read == 2)
         scope_buffer[2] = scope_buffer[0];
-
+    
     //Read bytes to scope_buffer
-    scope_buffer_data_available += Serial.readBytes(scope_buffer, num_bytes_to_read);
+    for (int i = num_bytes_to_read - 1; i > -1; i--)    
+        scope_buffer[i] = Serial.read();
+
+    //Update size of scope_buffer array
+    scope_buffer_data_available += num_bytes_to_read;
 
     //Return true if there are three packets to read
     return scope_buffer_data_available == 3;
@@ -139,26 +179,27 @@ bool ASerial::update_scope_buffer()
 
 void ASerial::process_transmission()
 {
-    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[0]);
+    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[PMASTER]);
 
-    _direction[target_motor_id] = GET_DIRECTION_BIT(scope_buffer[0]);
+    _direction[target_motor_id] = GET_DIRECTION_BIT(scope_buffer[PMASTER]);
 
     //First data packet contains the lower order speed
     //Second data packet contains the higher order speed
-    _speed[target_motor_id] = GET_SPEED_BITS(scope_buffer[1]) |
-                             (GET_SPEED_BITS(scope_buffer[2]) << 6);
+    _speed[target_motor_id] = GET_SPEED_BITS(scope_buffer[PDATA0]) |
+                             (GET_SPEED_BITS(scope_buffer[PDATA1]) << 6);
 
     //Set update status so external code knows.
     //All get properties have been updated, so get_speed is ready now.
     _updated = true;
 
     //If controller requests current position
-    if (GET_POS_REQ_BIT(scope_buffer[0]))
+    if (GET_POS_REQ_BIT(scope_buffer[PMASTER]))
     {
         //Copy position to avoid two atomic checks
         //and to avoid a block if position is updated inbetween serial byte writes
         uint16_t position = _position[target_motor_id];
         //Put current position into tx buffer
+        //Least significant bits are written first
         Serial.write((uint8_t *)&position, 2);
         //Block and force tx buffer to send
         Serial.flush();
@@ -167,7 +208,6 @@ void ASerial::process_transmission()
     //Clear scoped_buffer because transmission has been processed.
     //This opens up room for the next transmission.
     clear_scoped_buffer();
-
 }
 
 #pragma endregion 
@@ -200,6 +240,7 @@ ASerial::ASerial(int baudrate)
     xTaskCreatePinnedToCore(update_loop, "update_loop", 4 * 1024, NULL, 0, NULL, 0);
 }
 
+#pragma region Properties
 bool ASerial::ask_updated()
 {
     return _updated;
@@ -222,3 +263,5 @@ void ASerial::update_position(uint16_t position, motor_id motor)
 {
     _position[(uint8_t)motor] = position;
 }
+
+#pragma endregion

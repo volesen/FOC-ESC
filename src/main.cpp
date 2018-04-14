@@ -25,6 +25,7 @@ PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
 
 void setup()
 {
+    ASerial::get().update_position(18531, motor_id::motor1);
     //SERIAL USB PIN ON YOUR THING IS 1... or maybe UART0
     // Serial.begin(9600);
     // Serial.println();
@@ -114,6 +115,7 @@ void loop()
     // Serial.println(xPortGetCoreID());
 
     Serial.println(ASerial::get().get_speed(motor_id::motor1));
+    // Serial.println((149 & 63) | ((90 & 63) << 6));
     delay(1000);
     
 
