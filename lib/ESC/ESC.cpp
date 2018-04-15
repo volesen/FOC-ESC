@@ -89,8 +89,10 @@ void ESC::initialize() { get(); }
 
 bool ESC::update()
 {
-    for (int motor = 0; motor < NUM_MOTORS; motor++)
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
     {
-        
+        Iabc phases {0, 0, 0};
+
+        ADC_Motor::get((motor_id)motor)
     }
 }

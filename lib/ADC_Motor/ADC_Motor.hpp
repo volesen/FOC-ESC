@@ -12,6 +12,9 @@ class ADC_Motor
       public:
         ADC_Motor(motor_id motor);
 
+        static void initialize_all();
+        static ADC_Motor &get(motor_id motor);
+
         void get_samples(float &phase_A, float &phase_B);
 };
 
