@@ -6,7 +6,7 @@
 
 #define NUM_MOTORS 2
 
-enum class motor_id
+enum motor_id
 {
     motor0,
     motor1

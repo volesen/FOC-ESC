@@ -16,7 +16,7 @@ void setup()
     // Serial.println();
     // Serial.println();
     // Serial.println();
-
+    
     // Serial.println(get_bit(a, 0));
     // Serial.println(get_bit(a, 7));
     // Serial.println(get_bit(a, 6));

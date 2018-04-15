@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "ESC_Globals.hpp"
 
 struct pwm_phases
 {
@@ -133,11 +134,11 @@ class PWM
       /**
        * @brief Gets the singleton instance of a PWM.
        * 
-       * @param char id : The ID of the PWM to get.
+       * @param motor_id motor : The PWM module tied to motor_id to get.
        * 
        * @return Singleton instance of a PWM.
        */
-      static PWM& get(char id);
+      static PWM& get(motor_id motor);
 
       /**
        * @brief Initializes all PWM0 and PWM1.

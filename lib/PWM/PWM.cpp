@@ -83,13 +83,13 @@ pwm_phases pwm_phases::get_descaled(const float &bound_max) const
 ///====================================================================================
 ///PWM definition
 ///====================================================================================
-PWM& PWM::get(char id)
+PWM& PWM::get(motor_id motor)
 {
-    switch (id)
+    switch (motor)
     {
-        case 0:
+        case motor0:
             return PWM0::get();
-        case 1:
+        case motor1:
             return PWM1::get();
         default:
             //Throw an error or something
@@ -177,8 +177,8 @@ void PWM::set_pwm_high(bool A, bool B, bool C)
 
 void PWM::initialize_all(float initial_pwm_max_bound)
 {
-    PWM::get(0).initialize(initial_pwm_max_bound);
-    PWM::get(1).initialize(initial_pwm_max_bound);
+    PWM::get(motor0).initialize(initial_pwm_max_bound);
+    PWM::get(motor1).initialize(initial_pwm_max_bound);
 }
 
 ///====================================================================================

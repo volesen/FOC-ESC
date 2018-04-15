@@ -30,7 +30,7 @@ ESC::ESC()
     //Initailize classes to interact with hardware
     initialize_classes();
 
-
+    //Align rotor so that position is known
     reset_rotor_virtual_position(motor_id::motor0);
 }
 
@@ -62,6 +62,9 @@ void ESC::initialize_classes()
 
 void reset_rotor_virtual_position(motor_id motor)
 {
+    
+
+    //Reset virtual position field in QEncoder class
     QEncoder::get((uint8_t)motor).reset_virtual_position();
 }
 
