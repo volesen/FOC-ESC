@@ -27,9 +27,11 @@
 
 ESC::ESC()
 {
+    //Initailize classes to interact with hardware
     initialize_classes();
 
-    reset_rotor_virtual_position();
+
+    reset_rotor_virtual_position(motor_id::motor0);
 }
 
 void ESC::initialize_classes()
@@ -58,9 +60,9 @@ void ESC::initialize_classes()
     Motor::initialize_all();
 }
 
-void reset_rotor_virtual_position()
+void reset_rotor_virtual_position(motor_id motor)
 {
-    
+    QEncoder::get((uint8_t)motor).reset_virtual_position();
 }
 
 ESC& ESC::get()

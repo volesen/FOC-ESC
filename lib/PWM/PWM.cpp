@@ -7,13 +7,13 @@
 #define TIMER_FREQUENCY (MCPWM_FREQUENCY/(TIMER_CLK_PRESCALE + 1))  //Final timer frequency
 #define PWM_PERIOD (TIMER_FREQUENCY/PWM_FREQUENCY)                  //PWM period length in timer ticks
 
-#define Motor0_pin_A 12
-#define Motor0_pin_B 14
-#define Motor0_pin_C 27
+#define PWM0_pin_A 12
+#define PWM0_pin_B 14
+#define PWM0_pin_C 27
 
-#define Motor1_pin_A 25
-#define Motor1_pin_B 33
-#define Motor1_pin_C 32
+#define PWM1_pin_A 25
+#define PWM1_pin_B 33
+#define PWM1_pin_C 32
 
 
 #include <Arduino.h>
@@ -24,19 +24,19 @@
 #include <driver/periph_ctrl.h>
 #include <soc/mcpwm_struct.h>
 
-#include "Motor.hpp"
+#include "PWM.hpp"
 
 //TODO: Implement error handling
 
 
 ///====================================================================================
-///motor_pwm definition
+///pwm_phases definition
 ///====================================================================================
-motor_pwm::motor_pwm(const float& A, const float& B, const float& C)
+pwm_phases::pwm_phases(const float& A, const float& B, const float& C)
     : A(A), B(B), C(C) { }
 
 //Returns the largest pwm phase magnitude
-float motor_pwm::get_max() const
+float pwm_phases::get_max() const
 {
     float max = abs(A);
 
@@ -50,54 +50,54 @@ float motor_pwm::get_max() const
     return max;
 }
 
-motor_pwm motor_pwm::get_scaled(const float &bound_max) const 
+pwm_phases pwm_phases::get_scaled(const float &bound_max) const 
 {
     if (bound_max == 0)
-        return motor_pwm(PWM_PERIOD / 2, PWM_PERIOD / 2, PWM_PERIOD / 2);
+        return pwm_phases(PWM_PERIOD / 2, PWM_PERIOD / 2, PWM_PERIOD / 2);
     else
     {
         float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
         static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
 
-        return motor_pwm(A * scaler + range_shifter,    //Returns value in [0; PWM_PERIOD]
+        return pwm_phases(A * scaler + range_shifter,    //Returns value in [0; PWM_PERIOD]
                         B * scaler + range_shifter, 
                         C * scaler + range_shifter);
     }
 }
 
-motor_pwm motor_pwm::get_descaled(const float &bound_max) const 
+pwm_phases pwm_phases::get_descaled(const float &bound_max) const 
 {
     if (bound_max == 0)
-        return motor_pwm(0, 0, 0);
+        return pwm_phases(0, 0, 0);
     else
     {
         float scaler = PWM_PERIOD / bound_max / 2;      //Scales value to be in [-PWM_PERIOD/2; PWM_PERIOD/2]
         static float range_shifter = PWM_PERIOD / 2;    //Shifts value to be in [0; PWM_PERIOD]
 
-        return motor_pwm((A - range_shifter) / scaler,  //Returns value in [-bound_max; bound_max]
+        return pwm_phases((A - range_shifter) / scaler,  //Returns value in [-bound_max; bound_max]
                          (B - range_shifter) / scaler,
                          (C - range_shifter) / scaler);
     }
 }
 
 ///====================================================================================
-///Motor definition
+///PWM definition
 ///====================================================================================
-Motor& Motor::get(char id)
+PWM& PWM::get(char id)
 {
     switch (id)
     {
         case 0:
-            return Motor0::get();
+            return PWM0::get();
         case 1:
-            return Motor1::get();
+            return PWM1::get();
         default:
             //Throw an error or something
             break;
     }
 }
 
-float Motor::get_pwm_max_bound() const
+float PWM::get_pwm_max_bound() const
 {
     // if (!_initialized)
     //     throw 0;
@@ -105,7 +105,7 @@ float Motor::get_pwm_max_bound() const
         return _pwm_max_bound;
 }
 
-motor_pwm Motor::get_pwm() const
+pwm_phases PWM::get_pwm() const
 {
     // if (!_initialized)
     //     throw 0;
@@ -113,7 +113,7 @@ motor_pwm Motor::get_pwm() const
         return _pwm;
 }
 
-void Motor::set_pwm(const motor_pwm &pwm)
+void PWM::set_pwm(const pwm_phases &pwm)
 {
     // if (!_initialized)
     //     throw 0;
@@ -131,17 +131,17 @@ void Motor::set_pwm(const motor_pwm &pwm)
 
 }
 
-void Motor::set_pwm(const float &A, const float &B, const float &C)
+void PWM::set_pwm(const float &A, const float &B, const float &C)
 {
     //This is the overloaded function even though it is inefficient to create a new struct
     //This is because set_pwm(pwm) changes _pwm in one assignment.
     //If set_pwm(A, B, C) was the "main" function then _pwm would have been assigned to four times with the straight forward approach.
     //This is bad if an interrupt comes in the middle and tries to get _pwm.
     //The _pwm value will potentially not have been scaled yet.
-    set_pwm(motor_pwm(A, B, C));
+    set_pwm(pwm_phases(A, B, C));
 }
 
-void Motor::set_pwm_low(bool A, bool B, bool C)
+void PWM::set_pwm_low(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
@@ -158,7 +158,7 @@ void Motor::set_pwm_low(bool A, bool B, bool C)
         // }
 }
 
-void Motor::set_pwm_high(bool A, bool B, bool C)
+void PWM::set_pwm_high(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
@@ -175,36 +175,36 @@ void Motor::set_pwm_high(bool A, bool B, bool C)
     // }
 }
 
-void Motor::initialize_all(float initial_pwm_max_bound)
+void PWM::initialize_all(float initial_pwm_max_bound)
 {
-    Motor::get(0).initialize(initial_pwm_max_bound);
-    Motor::get(1).initialize(initial_pwm_max_bound);
+    PWM::get(0).initialize(initial_pwm_max_bound);
+    PWM::get(1).initialize(initial_pwm_max_bound);
 }
 
 ///====================================================================================
-///Motor0 definition
+///PWM0 definition
 ///====================================================================================
-bool Motor0::_initialized = false;
+bool PWM0::_initialized = false;
 
-Motor0::Motor0()
-    : _pins{Motor0_pin_A, Motor0_pin_B, Motor0_pin_C}
+PWM0::PWM0()
+    : _pins{PWM0_pin_A, PWM0_pin_B, PWM0_pin_C}
 {
-    _pwm = motor_pwm(0, 0, 0);
+    _pwm = pwm_phases(0, 0, 0);
 }
 
-Motor0& Motor0::get()
+PWM0& PWM0::get()
 {
     //Is instantiated on first call. 
-    //Subsequent calls simply return the already existing motor
-    static Motor0 motor;
+    //Subsequent calls simply return the already existing pwm
+    static PWM0 pwm;
 
-    if (!motor._initialized)
-        motor.initialize();
+    if (!pwm._initialized)
+        pwm.initialize();
 
-    return motor;
+    return pwm;
 }
 
-const uint8_t *Motor0::get_pins() const
+const uint8_t *PWM0::get_pins() const
 {
     // if (!_initialized)
     //     throw 0;
@@ -212,12 +212,12 @@ const uint8_t *Motor0::get_pins() const
         return _pins;
 }
 
-bool Motor0::get_initialized() const
+bool PWM0::get_initialized() const
 {
-    return Motor0::_initialized;
+    return PWM0::_initialized;
 }
 
-Motor0& Motor0::initialize(float initial_pwm_max_bound)
+PWM0& PWM0::initialize(float initial_pwm_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -283,11 +283,11 @@ Motor0& Motor0::initialize(float initial_pwm_max_bound)
     //Set initial max pwm bound
     _pwm_max_bound = initial_pwm_max_bound;
 
-    //Return motor so that settings can be set up immediately after with easy syntax
+    //Return pwm so that settings can be set up immediately after with easy syntax
     return get();
 }
 
-void Motor0::update_pwm()
+void PWM0::update_pwm()
 {
     MCPWM0.channel[0].cmpr_value[0].cmpr_val = (uint32_t)_pwm.A;       //Set duty period of operator 0 (tied to channel 0) output A to _pwm.A
     MCPWM0.channel[1].cmpr_value[0].cmpr_val = (uint32_t)_pwm.B;       //Set duty period of operator 1 (tied to channel 1) output A to _pwm.B
@@ -296,29 +296,29 @@ void Motor0::update_pwm()
 
 
 // ///====================================================================================
-// ///Motor1 definition
+// ///PWM1 definition
 // ///====================================================================================
-bool Motor1::_initialized = false;
+bool PWM1::_initialized = false;
 
-Motor1::Motor1()
-    : _pins{Motor1_pin_A, Motor1_pin_B, Motor1_pin_C}
+PWM1::PWM1()
+    : _pins{PWM1_pin_A, PWM1_pin_B, PWM1_pin_C}
 {
-    _pwm = motor_pwm(0, 0, 0);
+    _pwm = pwm_phases(0, 0, 0);
 }
 
-Motor1& Motor1::get()
+PWM1& PWM1::get()
 {
     //Is instantiated on first call. 
-    //Subsequent calls simply return the already existing motor
-    static Motor1 motor;
+    //Subsequent calls simply return the already existing pwm
+    static PWM1 pwm;
 
-    if (!motor._initialized)
-        motor.initialize();        
+    if (!pwm._initialized)
+        pwm.initialize();        
 
-    return motor;
+    return pwm;
 }
 
-const uint8_t *Motor1::get_pins() const
+const uint8_t *PWM1::get_pins() const
 {
     // if (!_initialized)
     //     throw 0;
@@ -326,12 +326,12 @@ const uint8_t *Motor1::get_pins() const
         return _pins;
 }
 
-bool Motor1::get_initialized() const
+bool PWM1::get_initialized() const
 {
-    return Motor1::_initialized;
+    return PWM1::_initialized;
 }
 
-Motor1& Motor1::initialize(float initial_pwm_max_bound)
+PWM1& PWM1::initialize(float initial_pwm_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -397,11 +397,11 @@ Motor1& Motor1::initialize(float initial_pwm_max_bound)
     //Set initial max pwm bound
     _pwm_max_bound = initial_pwm_max_bound;
 
-    //Return motor so that settings can be set up immediately after with easy syntax
+    //Return pwm so that settings can be set up immediately after with easy syntax
     return get();
 }
 
-void Motor1::update_pwm()
+void PWM1::update_pwm()
 {
     MCPWM0.channel[0].cmpr_value[1].cmpr_val = (uint32_t)_pwm.A;       //Set duty period of operator 0 (tied to channel 0) output B to _pwm.A
     MCPWM0.channel[1].cmpr_value[1].cmpr_val = (uint32_t)_pwm.B;       //Set duty period of operator 1 (tied to channel 1) output B to _pwm.B
