@@ -3,6 +3,7 @@
 */
 
 #include "Trig.hpp"
+#include "Tables.hpp"
 #include "ESC_Globals.hpp"
 
 /*

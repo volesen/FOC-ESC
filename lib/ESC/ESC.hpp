@@ -8,11 +8,6 @@ class ESC
   private:
     #pragma region Fields
     PID_Controller pid_torque, pid_waste;
-    
-    //Initialize ADCs for current measurement
-    //They have to be initialized here to avoid a compile-time error
-    ADC_Motor adc_motor0 {motor_id::motor0};
-    ADC_Motor adc_motor1 {motor_id::motor1};
 
     #pragma endregion
 
@@ -33,5 +28,5 @@ class ESC
     static ESC& get();
     static void initialize();
 
-    bool update();
+    void update();
 };

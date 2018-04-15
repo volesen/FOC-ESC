@@ -1,8 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "Tables.hpp"
-#include "ESC_Globals.hpp"
 
 class Trig {
     public:

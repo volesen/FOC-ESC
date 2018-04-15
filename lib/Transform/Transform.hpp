@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "Trig.hpp"
 
 struct Iabc {
 	float a, b, c;
