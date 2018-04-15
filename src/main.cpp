@@ -16,7 +16,7 @@ void setup()
     // Serial.println();
     // Serial.println();
     // Serial.println();
-    
+    ESC::initialize();
     // Serial.println(get_bit(a, 0));
     // Serial.println(get_bit(a, 7));
     // Serial.println(get_bit(a, 6));
@@ -90,6 +90,7 @@ void setup()
 
 void loop() 
 {
+    ESC::get().update();
     // Serial.println("loop");
     // ASerial::get();
     // ASerial::get().update_scope_buffer();
@@ -101,7 +102,7 @@ void loop()
 
     // Serial.println(ASerial::get().get_speed(motor_id::motor1));
     // Serial.println((149 & 63) | ((90 & 63) << 6));
-    delay(1000);
+    delay(800);
     
 
     // digitalWrite(1, HIGH);

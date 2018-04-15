@@ -35,8 +35,8 @@ ESC::ESC()
     initialize_classes();
 
     //Align rotors so that virtual position is known
-    for (int i = 0; i < NUM_MOTORS; i++)
-        reset_rotor_virtual_position((motor_id)i);
+    for (int motor = 0; motor < NUM_MOTORS; motor++)
+        reset_rotor_virtual_position((motor_id)motor);
 }
 
 void ESC::initialize_classes()
@@ -57,7 +57,7 @@ void ESC::initialize_classes()
     PWM::initialize_all();
 }
 
-void reset_rotor_virtual_position(motor_id motor)
+void ESC::reset_rotor_virtual_position(motor_id motor)
 {
     //Store pwm_phases
     pwm_phases previous_phases = PWM::get(motor).get_phases();
