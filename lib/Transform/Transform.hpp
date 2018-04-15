@@ -4,15 +4,15 @@
 #include "Trig.hpp"
 
 struct Iabc {
-	float Ia, Ib, Ic;
+	float a, b, c;
 };
 
 struct Iab{
-	float Ia, Ib;
+	float a, b;
 };
 
 struct Idq {
-	float Id, Iq;
+	float d, q;
 };
 
 class Transform{

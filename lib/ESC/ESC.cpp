@@ -91,6 +91,6 @@ bool ESC::update()
 {
     for (int motor = 0; motor < NUM_MOTORS; motor++)
     {
-        if ()
+        
     }
 }
