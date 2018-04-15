@@ -1,12 +1,7 @@
 #pragma once
 
 #include "ADC_Phase.hpp"
-
-enum class ADC_PHASE_PAIR
-{
-    Motor0,
-    Motor1
-};
+#include "ESC_Globals.hpp"
 
 class ADC_Motor
 {
@@ -15,7 +10,7 @@ class ADC_Motor
         ADC_Phase phase_B;
 
       public:
-        ADC_Motor(ADC_PHASE_PAIR pair);
+        ADC_Motor(motor_id motor);
 
         void get_samples(float &phase_A, float &phase_B);
 };
