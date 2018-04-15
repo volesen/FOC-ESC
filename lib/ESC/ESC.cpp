@@ -5,7 +5,7 @@
 #include "Transform.hpp"
 #include "PWM.hpp"
 #include "QEncoder.hpp"
-#include "ASerial.hpp"
+#include "ESC_Serial.hpp"
 
 #define CLOSED_LOOP_MODE 1
 
@@ -40,7 +40,7 @@ ESC::ESC()
 void ESC::initialize_classes()
 {
     //Initialize serial interface
-    ASerial::initialize();
+    ESC_Serial::initialize();
 
     //Initialize PID controllers
     pid_torque = PID_Controller(PID_TORQUE_P, 
@@ -89,8 +89,8 @@ void ESC::initialize() { get(); }
 
 bool ESC::update()
 {
-    for (int i = 0; i < NUM_MOTORS; i++)
+    for (int motor = 0; motor < NUM_MOTORS; motor++)
     {
-        
+        if ()
     }
 }
