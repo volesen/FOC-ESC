@@ -141,25 +141,35 @@ void Motor::set_pwm(const float &A, const float &B, const float &C)
     set_pwm(motor_pwm(A, B, C));
 }
 
-void Motor::set_pwm_low()
+void Motor::set_pwm_low(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
     // else
     // {
-        _pwm.A = _pwm.B = _pwm.C = 0;
+        if (A)
+            _pwm.A = 0;
+        if (B)
+            _pwm.B = 0;
+        if (C)
+            _pwm.C = 0;
 
         update_pwm();
         // }
 }
 
-void Motor::set_pwm_high()
+void Motor::set_pwm_high(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
     // else
     // {
-        _pwm.A = _pwm.B = _pwm.C = PWM_PERIOD;
+        if (A)
+            _pwm.A = PWM_PERIOD;
+        if (B)
+            _pwm.B = PWM_PERIOD;
+        if (C)
+            _pwm.C = PWM_PERIOD;
 
         update_pwm();
     // }

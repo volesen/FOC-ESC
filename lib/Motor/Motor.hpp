@@ -111,13 +111,21 @@ class Motor
 
       /**
        * @brief Set all PWM outputs to ground.
+       * 
+       * @param bool A : If phase A should be set low
+       * @param bool B : If phase B should be set low
+       * @param bool C : If phase C should be set low
        */
-      virtual void set_pwm_low();
+      virtual void set_pwm_low(bool A = true, bool B = true, bool C = true);
 
       /**
        * @brief Set all PWM outputs to 3.3 V.
+       * 
+       * @param bool A : If phase A should be set high
+       * @param bool B : If phase B should be set high
+       * @param bool C : If phase C should be set high
        */
-      virtual void set_pwm_high();
+      virtual void set_pwm_high(bool A = true, bool B = true, bool C = true);
 
       //Methods
       /**
