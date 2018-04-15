@@ -1,35 +1,34 @@
 #include "Transform.hpp"
 #include "Trig.hpp"
-#include "ESC_Globals.hpp"
 
-Iab Transform::clarke(const Iabc &Iabc) 
+Iab Transform::clarke(const pwm_phases &phases) 
 {
 	Iab ab;
 
 	// I_alpha = I_a
-	ab.a = Iabc.a;
+	ab.a = phases.A;
 
 	// I_beta = 1/sqrt(3) * I_a + 2/sqrt(3) * I_b
 	// Iab.Ib = (1/sqrt(3)) * Iabc.Ia + (2/sqrt(3))*Iabc.Ib;
-	ab.b = ((float) 0.57735026919 * Iabc.a + (float) 1.15470053838 * Iabc.b);
+	ab.b = ((float) 0.57735026919 * phases.A + (float) 1.15470053838 * phases.B);
 
 	return ab;
 }
 
-Iabc Transform::inv_clarke(const Iab &Iab) 
+pwm_phases Transform::inv_clarke(const Iab &Iab) 
 {
-	Iabc abc;
+	pwm_phases phases;
 
-	abc.a = Iab.a;
+	phases.A = Iab.a;
 
 	// Iabc.Ib =  -0.5 * Iab.Ia + (sqrt(3)/2) * Iab.Ib;
 
-	abc.b = ((float) -0.5 * Iab.a + (float) 0.8660254039 * Iab.b);
+	phases.B = ((float) -0.5 * Iab.a + (float) 0.8660254039 * Iab.b);
 	
 	//Iabc.Ic =  -0.5 * Iab.Ia - (sqrt(3)/2) * Iab.Ib;
-	abc.c = ((float) -0.5 * Iab.a - (float) 0.8660254039 * Iab.b);
+	phases.C = ((float) -0.5 * Iab.a - (float) 0.8660254039 * Iab.b);
 
-	return abc;
+	return phases;
 }
 
 Idq Transform::park(const uint16_t &theta, const Iab &Iab) 
@@ -58,11 +57,11 @@ Iab Transform::inv_park(const uint16_t &theta, const Idq &Idq)
 	return ab;
 }
 
-Idq Transform::de_phase(const uint16_t &theta, const Iabc &Iabc)
+Idq Transform::de_phase(const uint16_t &theta, const pwm_phases &phases)
 {
-	return park(theta, clarke(Iabc));
+	return park(theta, clarke(phases));
 }
-Iabc Transform::to_phase(const uint16_t &theta, const Idq &Idq)
+pwm_phases Transform::to_phase(const uint16_t &theta, const Idq &Idq)
 {
 	return inv_clarke(inv_park(theta, Idq));
 }
