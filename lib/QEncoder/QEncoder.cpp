@@ -28,8 +28,8 @@ QEncoder::QEncoder(char pin_interrupt, char pin_secondary, void (*interrupt_hand
 
 void QEncoder::initialize_all()
 {
-    get(motor0);
-    get(motor1);
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+        get((motor_id)motor);
 }
 
 QEncoder& IRAM_ATTR QEncoder::get(motor_id motor)

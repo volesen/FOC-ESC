@@ -9,8 +9,8 @@ ADC_Motor::ADC_Motor(motor_id motor)
 
 void ADC_Motor::initialize_all()
 {
-    get(motor0);
-    get(motor1);
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+        get((motor_id)motor);
 }
 
 ADC_Motor& ADC_Motor::get(motor_id motor)

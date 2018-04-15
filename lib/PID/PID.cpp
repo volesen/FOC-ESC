@@ -1,33 +1,76 @@
-#include "PID_Controller.hpp"
+#include "PID.hpp"
 
 //TODO:write more comments
 
-//Constructor
-PID_Controller::PID_Controller(float p, float i, float d, float i_max_change_per_cycle, int32_t d_window_fast, int32_t d_window_slow)
+pid_pair::pid_pair(pid_config waste, pid_config torque)
+    : waste(waste), torque(torque) {}
+
+pid_pair& PID::get(motor_id motor, pid_config waste, pid_config torque)
+{
+    //I do not feel like protecting against people deleting the object the pointer points to
+    //This seems unnecessary given the circumstances the code is going to be used in.
+    switch (motor)
+    {
+        case motor0:
+        {   //The brackets are used to create a new scope so that the variable instance can be used multiple times
+            static pid_pair instance(waste, torque);
+
+            return instance;
+        }
+            
+        case motor1:
+        {
+            static pid_pair instance(waste, torque);
+
+            return instance;
+        }
+
+        default:
+            //TODO: Throw an error or something
+            break;
+    }
+}
+
+void PID::initialize_all(pid_config waste, pid_config torque)
+{
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+        get((motor_id)motor, waste, torque);
+}
+
+
+pid_config::pid_config(float p, float i, float d, 
+                       float i_max_change_per_cycle, 
+                       uint32_t d_window_fast, uint32_t d_window_slow)
     : p(p), i(i), d(d)
-    , p_term(0), i_term(0), d_term(0)
     , i_max_change_per_cycle(i_max_change_per_cycle)
+    , d_window_fast(d_window_fast), d_window_slow(d_window_slow) { }
+
+//Constructor
+PID_Controller::PID_Controller(pid_config config)
+    : p(config.p), i(config.i), d(config.d)
+    , p_term(0), i_term(0), d_term(0)
+    , i_max_change_per_cycle(config.i_max_change_per_cycle)
     , error_sum_fast(0), error_sum_slow(0)
     , error_iteration(0)
 {
     //TODO:We need to agree on how to handle errors
     //Do we guess and correct them? Or do we crash everything? I prefer crash.
-    if (d_window_fast >= d_window_slow ||
-        d_window_fast < 1 ||
-        d_window_slow < 2)
+    if (config.d_window_fast >= config.d_window_slow ||
+        config.d_window_fast < 1 ||
+        config.d_window_slow < 2)
     {
         error_rolling_window_fast = 1;
         error_rolling_window_slow = 2;
     }
     else
     {
-        error_rolling_window_fast = d_window_fast;
-        error_rolling_window_slow = d_window_slow;
+        error_rolling_window_fast = config.d_window_fast;
+        error_rolling_window_slow = config.d_window_slow;
     }
 
     errors = new float[error_rolling_window_slow];
     //There has to be a better way to initialize to 0
-    for (int32_t i = 0; i < error_rolling_window_slow; i++)  
+    for (uint32_t i = 0; i < error_rolling_window_slow; i++)  
         errors[i] = 0.0f;
 }
 

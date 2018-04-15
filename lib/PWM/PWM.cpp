@@ -177,8 +177,8 @@ void PWM::set_phases_high(bool A, bool B, bool C)
 
 void PWM::initialize_all(float initial_phases_max_bound)
 {
-    PWM::get(motor0).initialize(initial_phases_max_bound);
-    PWM::get(motor1).initialize(initial_phases_max_bound);
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+        get((motor_id)motor).initialize(initial_phases_max_bound);
 }
 
 ///====================================================================================

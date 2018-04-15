@@ -26,7 +26,7 @@ class QEncoder
       ~QEncoder();
 
       static void initialize_all();
-      static QEncoder& get(motor_id motor);
+      static QEncoder& IRAM_ATTR get(motor_id motor);
 
       void reset_virtual_position();
       void reset_axis_position();

@@ -1,13 +1,12 @@
 #pragma once
 
 #include "ADC_Motor.hpp"
-#include "PID_Controller.hpp"
+#include "PID.hpp"
 
 class ESC
 {
   private:
     #pragma region Fields
-    PID_Controller pid_torque, pid_waste;
 
     #pragma endregion
 

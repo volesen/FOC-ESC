@@ -11,19 +11,19 @@
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 80
 
-#define PID_WASTE_P                 0.3
-#define PID_WASTE_I                 0.2
-#define PID_WASTE_D                 0
-#define PID_WASTE_I_MAX_CHANGE      0.5
-#define PID_WASTE_D_WINDOW_FAST     1
-#define PID_WASTE_D_WINDOW_SLOW     2
+const pid_config waste(0.3, //P
+                       0.2, //I
+                       0,   //D
+                       0.5, //I_MAX_CHANGE_PER_CYCLE
+                       1,   //D_WINDOW_FAST
+                       2);  //D_WINDOW_SLOW
 
-#define PID_TORQUE_P                0.62
-#define PID_TORQUE_I                0.47
-#define PID_TORQUE_D                0
-#define PID_TORQUE_I_MAX_CHANGE     0.4
-#define PID_TORQUE_D_WINDOW_FAST    1
-#define PID_TORQUE_D_WINDOW_SLOW    2
+const pid_config torque(0.62,   //P
+                        0.47,   //I
+                        0,      //D
+                        0.4,    //I_MAX_CHANGE_PER_CYCLE
+                        1,      //D_WINDOW_FAST
+                        2);     //D_WINDOW_SLOW
 
 
 #pragma region Initialization
@@ -43,19 +43,7 @@ void ESC::initialize_classes()
     ESC_Serial::initialize();
 
     //Initialize PID controllers
-    pid_waste =  PID_Controller(PID_WASTE_P, 
-                            PID_WASTE_I, 
-                            PID_WASTE_D, 
-                            PID_WASTE_I_MAX_CHANGE,
-                            PID_WASTE_D_WINDOW_FAST,
-                            PID_WASTE_D_WINDOW_SLOW);
-
-    pid_torque = PID_Controller(PID_TORQUE_P, 
-                                PID_TORQUE_I, 
-                                PID_TORQUE_D, 
-                                PID_TORQUE_I_MAX_CHANGE,
-                                PID_TORQUE_D_WINDOW_FAST,
-                                PID_TORQUE_D_WINDOW_SLOW);
+    PID::initialize_all(waste, torque);
 
     //Initialize current measuring ADCs
     ADC_Motor::initialize_all();
@@ -95,12 +83,12 @@ void ESC::update()
 {
     for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
     {
-        //Get phase currents
-        Iabc phases {0, 0, 0};
+        //Get phase A and B currents 
+        //Calculate current C via Kirchoffs current law
+        pwm_phases phases {0, 0, 0};
         ADC_Motor::get((motor_id)motor)
-                  .get_samples(phases.a, phases.b);
-        //Calculate current in phase C via Kirchoffs current law
-        phases.c = - phases.a - phases.b;
+                  .get_samples(phases.A, phases.A);
+        phases.C = - phases.C - phases.A;
 
         //Get virtual angle of rotor
         uint32_t virtual_angle = QEncoder::get((motor_id)motor)
@@ -115,8 +103,7 @@ void ESC::update()
         //Transform rotating reference frame to phases
         phases = Transform::to_phase(virtual_angle, waste_torque);
         
-        //R
-        pwm_phases pwm(phases.a, phases.b, phases.c);
-        PWM::get((motor_id)motor).set_phases(pwm);
+        //Stage PWM output to be updated
+        PWM::get((motor_id)motor).set_phases(phases);
     }
 }
