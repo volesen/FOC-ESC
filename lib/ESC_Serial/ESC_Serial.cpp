@@ -267,7 +267,7 @@ float ESC_Serial::get_throttle(motor_id motor)
     return throttle / MAX_INPUT_THROTTLE * MAX_OUTPUT_THROTTLE;
 }
 
-void ESC_Serial::update_position(uint16_t position, motor_id motor)
+void ESC_Serial::update_position(motor_id motor, uint16_t position)
 {
     _position[motor] = position;
 }

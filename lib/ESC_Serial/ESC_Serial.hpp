@@ -83,7 +83,7 @@ class ESC_Serial
      * @param motor_id motor Motor to update position of.
      * 
      */
-    void update_position(uint16_t position, motor_id motor);
+    void update_position(motor_id motor, uint16_t position);
 
     #pragma endregion
 };

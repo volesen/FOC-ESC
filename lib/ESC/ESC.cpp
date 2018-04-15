@@ -103,6 +103,10 @@ void ESC::update()
         //Get throttle including direction
         float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
 
+        //Stage update of position to ESC_Serial
+        ESC_Serial::get().update_position(motor, QEncoder::get(motor)
+                                                          .get_axis_position());
+
         //Transform phases to rotating reference frame
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
