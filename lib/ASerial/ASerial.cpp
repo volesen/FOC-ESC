@@ -222,6 +222,11 @@ ASerial& ASerial::get()
     return com;
 }
 
+void ASerial::initialize()
+{
+    get();
+}
+
 ASerial::ASerial(int baudrate)
     : _updated(false)
 {

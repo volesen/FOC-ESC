@@ -7,23 +7,42 @@
 #include "ADC_Motor.hpp"
 #include "ASerial.hpp"
 
+
+#define CLOSED_LOOP_MODE 1
+
 uint32_t iteration = 0;
 
 //PID and transform
 uint16_t angle = 0;
 
-Idq dq;
-Iabc abc;
 
-PID_Controller PID_waste(0.3, 0.2, 0, 0.5);
-PID_Controller PID_torque(0.62, 0.47, 0, 0.4);
+PID_Controller pid_waste, pid_torque;
+ADC_Motor adc_motor0, adc_motor1;
 
-// ADC_Motor ADC_Motor0(ADC_PHASE_PAIR::Motor0);
-// ADC_Motor ADC_Motor1(ADC_PHASE_PAIR::Motor1);
+void initialize_classes()
+{
+    //Initialize serial interface
+    ASerial::initialize();
 
+    //Initialize PID controllers
+    //                          P     I     D  I_max_change
+    pid_waste =  PID_Controller(0.3 , 0.2 , 0, 0.5);
+    pid_torque = PID_Controller(0.62, 0.47, 0, 0.4);
+
+    //Initialize ADCs for current measurement
+    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor0);
+    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor1);
+
+    //Initialize quadrature encoders
+    QEncoder::initialize_all();
+
+    //Initialize PWM module
+    Motor::initialize_all();
+}
 
 void setup()
 {
+    initialize_classes();
     ASerial::get().update_position(18531, motor_id::motor1);
     //SERIAL USB PIN ON YOUR THING IS 1... or maybe UART0
     // Serial.begin(9600);

@@ -66,6 +66,7 @@ class ASerial
 
   public:
     static ASerial &get();
+    static void initialize();
 
     #pragma region Properties
     bool ask_updated();
