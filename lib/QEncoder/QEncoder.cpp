@@ -23,7 +23,7 @@ QEncoder::QEncoder(char pin_interrupt, char pin_secondary, void (*interrupt_hand
     attachInterrupt(digitalPinToInterrupt(      //Pin to interrupt on
                     pin_interrupt),                      
                     interrupt_handler,          //Interrupt handler method
-                    1);                         //Interrupt on rising edg
+                    1);                         //Interrupt on rising edge
 }
 
 void QEncoder::initialize_all()

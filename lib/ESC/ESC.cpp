@@ -84,9 +84,6 @@ void ESC::initialize() { get(); }
 
 void ESC::update()
 {
-    //TODO: remove open loop TESTING code
-    static uint32_t angle = 0;
-
     for (uint8_t id = 0; id < NUM_MOTORS; id++)
     {
         //Convert id to motor_id
@@ -97,35 +94,26 @@ void ESC::update()
         pwm_phases phases {0, 0, 0};
         ADC_Motor::get(motor)
                   .get_samples(phases.A, phases.B);
-        phases.C = - phases.A - phases.B;
+        phases.C = -phases.A-phases.B;
 
         //Get virtual angle of rotor
-        // uint32_t virtual_angle = QEncoder::get(motor)
-        //                                   .get_virtual_position();
-        uint32_t virtual_angle = angle++ % (ELECTRIC_ROTATION_STEPS + 1);
+        uint32_t virtual_angle = QEncoder::get(motor)
+                                          .get_virtual_position();
         
         //Get throttle including direction
-        // float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
-        float throttle = 1;
+        float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
 
         //Transform phases to rotating reference frame
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
         //Update PI-loops
         waste_torque.d = PID::get(motor).waste.update(waste_torque.d, 0);
-        waste_torque.q = PID::get(motor).torque.update(waste_torque.d, throttle);
-
+        waste_torque.q = PID::get(motor).torque.update(waste_torque.q, throttle);
+        
         //Transform rotating reference frame to phases
         phases = Transform::to_phase(virtual_angle, waste_torque);
         
         //Stage PWM output to be updated
         PWM::get(motor).set_phases(phases);
-
-        pwm_phases m = PWM::get(motor).get_phases().create_corrected(PWM::get(motor).get_phases_max_bound());
-        Serial.print(m.A);
-        Serial.print(",");
-        Serial.print(m.B);
-        Serial.print(",");
-        Serial.println(m.C);
     }
 }
