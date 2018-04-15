@@ -63,10 +63,18 @@ void ESC::initialize_classes()
 
 void reset_rotor_virtual_position(motor_id motor)
 {
-    
+    //Store pwm_phases
+    pwm_phases previous_phases = PWM::get(motor).get_pwm();
+
+    //Force rotor into known position
+    PWM::get(motor).set_pwm_high(false, true, false);
+    PWM::get(motor).set_pwm_low(true, false, true);
 
     //Reset virtual position field in QEncoder class
     QEncoder::get(motor).reset_virtual_position();
+
+    //Restore pwm_phases
+    PWM::get(motor).set_pwm(previous_phases);
 }
 
 ESC& ESC::get()

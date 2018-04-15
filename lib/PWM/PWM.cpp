@@ -50,7 +50,7 @@ float pwm_phases::get_max() const
     return max;
 }
 
-pwm_phases pwm_phases::get_scaled(const float &bound_max) const 
+pwm_phases pwm_phases::create_corrected(const float &bound_max) const 
 {
     if (bound_max == 0)
         return pwm_phases(PWM_PERIOD / 2, PWM_PERIOD / 2, PWM_PERIOD / 2);
@@ -65,7 +65,7 @@ pwm_phases pwm_phases::get_scaled(const float &bound_max) const
     }
 }
 
-pwm_phases pwm_phases::get_descaled(const float &bound_max) const 
+pwm_phases pwm_phases::create_decorrected(const float &bound_max) const 
 {
     if (bound_max == 0)
         return pwm_phases(0, 0, 0);
@@ -110,7 +110,7 @@ pwm_phases PWM::get_pwm() const
     // if (!_initialized)
     //     throw 0;
     // else
-        return _pwm;
+        return _pwm.create_decorrected(_pwm_max_bound);
 }
 
 void PWM::set_pwm(const pwm_phases &pwm)
@@ -124,7 +124,7 @@ void PWM::set_pwm(const pwm_phases &pwm)
         if (max > _pwm_max_bound)
             _pwm_max_bound = max;
 
-        _pwm = pwm.get_scaled(_pwm_max_bound);
+        _pwm = pwm.create_corrected(_pwm_max_bound);
         
         update_pwm();
     // }

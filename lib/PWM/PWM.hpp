@@ -32,7 +32,7 @@ struct pwm_phases
        * 
        * @return A new pwm_phases with values scaled to valid pwm ranges.
        */
-      pwm_phases get_scaled(const float &bound_max) const;
+      pwm_phases create_corrected(const float &bound_max) const;
 
       /**
        * @brief Scales phase magnitudes so that the neutral point is at 0 and bound is at [-bound_max; bound_max].
@@ -43,7 +43,7 @@ struct pwm_phases
        * 
        * @return A new pwm_phases with values scaled to be easy to manipulate.
        */
-      pwm_phases get_descaled(const float &bound_max) const;
+      pwm_phases create_decorrected(const float &bound_max) const;
 };
 
 class PWM
@@ -90,21 +90,21 @@ class PWM
       virtual float get_pwm_max_bound() const;
 
       /**
-       * @brief Gets pwm_phases struct containing current scaled pwm values.
+       * @brief Gets pwm_phases struct containing decorrected pwm values.
        * 
-       * @return pwm_phases struct containing current scaled pwm values.
+       * @return pwm_phases struct containing decorrected pwm values.
        */
       virtual pwm_phases get_pwm() const;
 
       /**
-       * @brief Scale input parameter to pwm period values, save scaled parameter, and update PWM output to new values.
+       * @brief Correct/scale input parameter to pwm period values, save corrected parameter, and update PWM output to new values.
        * 
        * @param pwm_phases pwm : New pwm values to apply to PWM.
        */
       virtual void set_pwm(const pwm_phases &pwm);
 
       /**
-       * @brief Scale input parameters to pwm period values, save scaled parameters, and update PWM output to new values.
+       * @brief Correct/scale input parameters to pwm period values, save corrected parameters, and update PWM output to new values.
        * 
        * @param float A : New pwm value for phase A
        * @param float B : New pwm value for phase B
