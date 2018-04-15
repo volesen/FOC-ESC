@@ -66,7 +66,7 @@ void reset_rotor_virtual_position(motor_id motor)
     
 
     //Reset virtual position field in QEncoder class
-    QEncoder::get((uint8_t)motor).reset_virtual_position();
+    QEncoder::get(motor).reset_virtual_position();
 }
 
 ESC& ESC::get()

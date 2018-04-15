@@ -179,15 +179,15 @@ bool ASerial::update_scope_buffer()
 
 void ASerial::process_transmission()
 {
-    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[PMASTER]) < NUM_MOTORS 
-                            ? GET_MOTOR_ID_BITS(scope_buffer[PMASTER])
-                            : 0;        //TODO: Create error here
+    motor_id target_motor = GET_MOTOR_ID_BITS(scope_buffer[PMASTER]) < NUM_MOTORS 
+                            ? (motor_id)GET_MOTOR_ID_BITS(scope_buffer[PMASTER])
+                            : motor0;        //TODO: Create error here
 
-    _direction[target_motor_id] = GET_DIRECTION_BIT(scope_buffer[PMASTER]);
+    _direction[target_motor] = GET_DIRECTION_BIT(scope_buffer[PMASTER]);
 
     //First data packet contains the lower order speed
     //Second data packet contains the higher order speed
-    _speed[target_motor_id] = GET_SPEED_BITS(scope_buffer[PDATA0]) |
+    _speed[target_motor] = GET_SPEED_BITS(scope_buffer[PDATA0]) |
                              (GET_SPEED_BITS(scope_buffer[PDATA1]) << 6);
 
     //Set update status so external code knows.
@@ -199,7 +199,7 @@ void ASerial::process_transmission()
     {
         //Copy position to avoid two atomic checks
         //and to avoid a block if position is updated inbetween serial byte writes
-        uint16_t position = _position[target_motor_id];
+        uint16_t position = _position[target_motor];
         //Put current position into tx buffer
         //Least significant bits are written first
         Serial.write((uint8_t *)&position, 2);
@@ -257,8 +257,8 @@ float ASerial::get_speed(motor_id motor)
 {
     //Copied to minimize chance of being blocked by accessing atomic variables
     //which creates two opportunities for a block
-    float speed = (float)_speed[(uint8_t)motor] 
-                * (_direction[(uint8_t)motor] ? 1 : -1); //Make negative if CC direction
+    float speed = (float)_speed[motor] 
+                * (_direction[motor] ? 1 : -1); //Make negative if CC direction
 
     if (_updated)
         _updated = false;
@@ -268,7 +268,7 @@ float ASerial::get_speed(motor_id motor)
 
 void ASerial::update_position(uint16_t position, motor_id motor)
 {
-    _position[(uint8_t)motor] = position;
+    _position[motor] = position;
 }
 
 #pragma endregion

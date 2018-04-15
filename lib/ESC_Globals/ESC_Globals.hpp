@@ -6,7 +6,7 @@
 
 #define NUM_MOTORS 2
 
-enum motor_id
+enum motor_id : uint8_t
 {
     motor0,
     motor1
