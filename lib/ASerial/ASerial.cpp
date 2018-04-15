@@ -192,7 +192,7 @@ void ASerial::process_transmission()
 
     //Set update status so external code knows.
     //All get properties have been updated, so get_speed is ready now.
-    _updated = true;
+    _updated[target_motor] = true;
 
     //If controller requests current position
     if (GET_POS_REQ_BIT(scope_buffer[PMASTER]))
@@ -228,7 +228,6 @@ void ASerial::initialize()
 }
 
 ASerial::ASerial(int baudrate)
-    : _updated(false)
 {
     //Initialize fields
     scope_buffer_data_available = 0;
@@ -240,6 +239,8 @@ ASerial::ASerial(int baudrate)
         std::atomic_init(_direction + i, true);
         _speed[i] = 0;
         _position[i] = 0;
+
+        std::atomic_init(_updated + i, false);
     }
     
     //The update loop is given priority 0 which is the lowest priority.
@@ -248,9 +249,9 @@ ASerial::ASerial(int baudrate)
 }
 
 #pragma region Properties
-bool ASerial::ask_updated()
+bool ASerial::ask_updated(motor_id motor)
 {
-    return _updated;
+    return _updated[motor];
 }
 
 float ASerial::get_speed(motor_id motor)
@@ -260,8 +261,8 @@ float ASerial::get_speed(motor_id motor)
     float speed = (float)_speed[motor] 
                 * (_direction[motor] ? 1 : -1); //Make negative if CC direction
 
-    if (_updated)
-        _updated = false;
+    if (_updated[motor])
+        _updated[motor] = false;
 
     return speed / MAX_INPUT_SPEED * MAX_OUTPUT_SPEED;
 }

@@ -28,7 +28,7 @@ class ASerial
     uint8_t scope_buffer_data_available;
     uint8_t scope_buffer[3];
 
-    bool _updated;
+    volatile std::atomic<bool> _updated[NUM_MOTORS];
 
     #pragma endregion
 
@@ -69,7 +69,7 @@ class ASerial
     static void initialize();
 
     #pragma region Properties
-    bool ask_updated();
+    bool ask_updated(motor_id motor);
 
     float get_speed(motor_id motor);
 

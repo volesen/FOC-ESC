@@ -26,13 +26,13 @@
 #define PID_WASTE_D_WINDOW_SLOW     2
 
 
-
+#pragma region Initialization
 ESC::ESC()
 {
     //Initailize classes to interact with hardware
     initialize_classes();
 
-    //Align rotor so that position is known
+    //Align rotors so that virtual position is known
     for (int i = 0; i < NUM_MOTORS; i++)
         reset_rotor_virtual_position((motor_id)i);
 }
@@ -69,8 +69,8 @@ void reset_rotor_virtual_position(motor_id motor)
     pwm_phases previous_phases = PWM::get(motor).get_phases();
 
     //Force rotor into known position
-    PWM::get(motor).set_pwm_high(false, true, false);
-    PWM::get(motor).set_pwm_low(true, false, true);
+    PWM::get(motor).set_phases_high(true, false, false);
+    PWM::get(motor).set_phases_low(false, true, true);
 
     //Wait for rotor to physically rotate
     vTaskDelay(VIRTUAL_POSITION_RESET_TIME_MS / portTICK_PERIOD_MS);
@@ -79,12 +79,18 @@ void reset_rotor_virtual_position(motor_id motor)
     QEncoder::get(motor).reset_virtual_position();
 
     //Restore pwm_phases
-    PWM::get(motor).set_pwm(previous_phases);
+    PWM::get(motor).set_phases(previous_phases);
 }
 
-ESC& ESC::get()
-{
-    static ESC instance{};
+#pragma endregion
 
-    return instance;
+ESC& ESC::get() { static ESC instance{}; return instance; }
+void ESC::initialize() { get(); }
+
+bool ESC::update()
+{
+    for (int i = 0; i < NUM_MOTORS; i++)
+    {
+        
+    }
 }

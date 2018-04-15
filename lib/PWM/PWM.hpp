@@ -53,18 +53,18 @@ class PWM
       /**
        * @brief pwm_phases struct that contains current scaled pwm values.
        */
-      pwm_phases _pwm;
+      pwm_phases _phases;
 
       /**
-       * @brief The highest pwm phase magnitude passed to set_pwm.
+       * @brief The highest pwm phase magnitude passed to set_phases.
        */
-      float _pwm_max_bound;
+      float _phases_max_bound;
       
       //Methods
       /**
-       * @brief Stages the pwm output to be updated on next pwm period with values in _pwm struct.
+       * @brief Stages the pwm output to be updated on next pwm period with values in _phases struct.
        */
-      virtual void update_pwm() = 0;
+      virtual void update_phases() = 0;
 
 	public:
       //Properties
@@ -83,9 +83,9 @@ class PWM
       virtual bool get_initialized() const = 0;
 
       /**
-       * @brief Gets the highest pwm phase magnitude passed to set_pwm.
+       * @brief Gets the highest pwm phase magnitude passed to set_phases.
        * 
-       * @return A float representing the highest pwm phase magnitude passed to set_pwm.
+       * @return A float representing the highest pwm phase magnitude passed to set_phases.
        */
       virtual float get_phases_max_bound() const;
 
@@ -101,7 +101,7 @@ class PWM
        * 
        * @param pwm_phases pwm : New pwm values to apply to PWM.
        */
-      virtual void set_pwm(const pwm_phases &pwm);
+      virtual void set_phases(const pwm_phases &pwm);
 
       /**
        * @brief Correct/scale input parameters to pwm period values, save corrected parameters, and update PWM output to new values.
@@ -110,7 +110,7 @@ class PWM
        * @param float B : New pwm value for phase B
        * @param float C : New pwm value for phase C
        */
-      virtual void set_pwm(const float &A, const float &B, const float &C);
+      virtual void set_phases(const float &A, const float &B, const float &C);
 
       /**
        * @brief Set all PWM outputs to ground.
@@ -119,7 +119,7 @@ class PWM
        * @param bool B : If phase B should be set low
        * @param bool C : If phase C should be set low
        */
-      virtual void set_pwm_low(bool A = true, bool B = true, bool C = true);
+      virtual void set_phases_low(bool A = true, bool B = true, bool C = true);
 
       /**
        * @brief Set all PWM outputs to 3.3 V.
@@ -128,7 +128,7 @@ class PWM
        * @param bool B : If phase B should be set high
        * @param bool C : If phase C should be set high
        */
-      virtual void set_pwm_high(bool A = true, bool B = true, bool C = true);
+      virtual void set_phases_high(bool A = true, bool B = true, bool C = true);
 
       //Methods
       /**
@@ -143,14 +143,14 @@ class PWM
       /**
        * @brief Initializes all PWM0 and PWM1.
        * 
-       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
+       * @param float initial_phases_max_bound : Initial value for pwm_max_bound
        */
-      static void initialize_all(float initial_pwm_max_bound = 0);
+      static void initialize_all(float initial_phases_max_bound = 0);
 
       /**
        * @brief Initialize pwm output by setting up PWM controls.
        */
-      virtual PWM& initialize(float initial_pwm_max_bound = 0) = 0;
+      virtual PWM& initialize(float initial_phases_max_bound = 0) = 0;
       
 };
 
@@ -175,9 +175,9 @@ class PWM0 : public PWM
       
       //Methods
       /**
-       * @brief Stages the PWM output to be updated on next pwm period with values in _pwm struct.
+       * @brief Stages the PWM output to be updated on next pwm period with values in _phases struct.
        */
-      void update_pwm();
+      void update_phases();
         
     public:
       //Properties
@@ -206,9 +206,9 @@ class PWM0 : public PWM
       /**
        * @brief Initialize pwm output by setting up PWM controls.
        * 
-       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
+       * @param float initial_phases_max_bound : Initial value for pwm_max_bound
        */
-      PWM0& initialize(float initial_pwm_max_bound = 0);
+      PWM0& initialize(float initial_phases_max_bound = 0);
 };
 
 class PWM1 : public PWM
@@ -232,9 +232,9 @@ class PWM1 : public PWM
       
       //Methods
       /**
-       * @brief Stages the PWM output to be updated on next pwm period with values in _pwm struct.
+       * @brief Stages the PWM output to be updated on next pwm period with values in _phases struct.
        */
-      void update_pwm();
+      void update_phases();
         
     public:
       //Properties
@@ -263,7 +263,7 @@ class PWM1 : public PWM
       /**
        * @brief Initialize pwm output by setting up PWM controls.
        * 
-       * @param float initial_pwm_max_bound : Initial value for pwm_max_bound
+       * @param float initial_phases_max_bound : Initial value for pwm_max_bound
        */
-      PWM1& initialize(float initial_pwm_max_bound = 0);
+      PWM1& initialize(float initial_phases_max_bound = 0);
 };
