@@ -179,7 +179,9 @@ bool ASerial::update_scope_buffer()
 
 void ASerial::process_transmission()
 {
-    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[PMASTER]);
+    uint8_t target_motor_id = GET_MOTOR_ID_BITS(scope_buffer[PMASTER]) < NUM_MOTORS 
+                            ? GET_MOTOR_ID_BITS(scope_buffer[PMASTER])
+                            : 0;        //TODO: Create error here
 
     _direction[target_motor_id] = GET_DIRECTION_BIT(scope_buffer[PMASTER]);
 

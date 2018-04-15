@@ -5,7 +5,6 @@
 #include "Motor.hpp"
 #include "QEncoder.hpp"
 #include "ADC_Motor.hpp"
-
 #include "ASerial.hpp"
 
 uint32_t iteration = 0;
