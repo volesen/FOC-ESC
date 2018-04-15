@@ -49,9 +49,11 @@ class PWM
       /**
        * @brief Gets pwm_phases struct containing decorrected pwm values.
        * 
+       * @param bool return_decorrected : If the pwm_phases values should be decorrected before return.
+       * 
        * @return pwm_phases struct containing decorrected pwm values.
        */
-      virtual pwm_phases get_phases() const;
+      virtual pwm_phases get_phases(bool return_decorrected = true) const;
 
       /**
        * @brief Correct/scale input parameter to pwm period values, save corrected parameter, and update PWM output to new values.

@@ -105,12 +105,15 @@ float PWM::get_phases_max_bound() const
         return _phases_max_bound;
 }
 
-pwm_phases PWM::get_phases() const
+pwm_phases PWM::get_phases(bool return_decorrected) const
 {
     // if (!_initialized)
     //     throw 0;
     // else
+    if (return_decorrected)
         return _phases.create_decorrected(_phases_max_bound);
+    else
+        return _phases;
 }
 
 void PWM::set_phases(const pwm_phases &pwm)

@@ -2,12 +2,13 @@
 
 #include "ESC.hpp"
 
-#include "Transform.hpp"
-#include "PWM.hpp"
-#include "QEncoder.hpp"
 #include "ESC_Serial.hpp"
+#include "PID.hpp"
+#include "ADC_Motor.hpp"
+#include "QEncoder.hpp"
+#include "PWM.hpp"
+#include "Transform.hpp"
 
-#define CLOSED_LOOP_MODE 1
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 80
 
@@ -83,6 +84,9 @@ void ESC::initialize() { get(); }
 
 void ESC::update()
 {
+    //TODO: remove open loop TESTING code
+    static uint32_t angle = 0;
+
     for (uint8_t id = 0; id < NUM_MOTORS; id++)
     {
         //Convert id to motor_id
@@ -96,11 +100,13 @@ void ESC::update()
         phases.C = - phases.A - phases.B;
 
         //Get virtual angle of rotor
-        uint32_t virtual_angle = QEncoder::get(motor)
-                                          .get_virtual_position();
+        // uint32_t virtual_angle = QEncoder::get(motor)
+        //                                   .get_virtual_position();
+        uint32_t virtual_angle = angle++ % (ELECTRIC_ROTATION_STEPS + 1);
         
         //Get throttle including direction
-        float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
+        // float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
+        float throttle = 1;
 
         //Transform phases to rotating reference frame
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
@@ -114,5 +120,12 @@ void ESC::update()
         
         //Stage PWM output to be updated
         PWM::get(motor).set_phases(phases);
+
+        pwm_phases m = PWM::get(motor).get_phases().create_corrected(PWM::get(motor).get_phases_max_bound());
+        Serial.print(m.A);
+        Serial.print(",");
+        Serial.print(m.B);
+        Serial.print(",");
+        Serial.println(m.C);
     }
 }

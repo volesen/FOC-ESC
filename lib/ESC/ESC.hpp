@@ -1,7 +1,6 @@
 #pragma once
 
-#include "ADC_Motor.hpp"
-#include "PID.hpp"
+#include "ESC_Globals.hpp"
 
 class ESC
 {

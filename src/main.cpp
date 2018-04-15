@@ -102,7 +102,7 @@ void loop()
 
     // Serial.println(ASerial::get().get_speed(motor_id::motor1));
     // Serial.println((149 & 63) | ((90 & 63) << 6));
-    delay(800);
+    delay(20);
     
 
     // digitalWrite(1, HIGH);
