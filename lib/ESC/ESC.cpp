@@ -9,6 +9,8 @@
 
 #define CLOSED_LOOP_MODE 1
 
+#define VIRTUAL_POSITION_RESET_TIME_MS 80
+
 #define PID_TORQUE_P                0.62
 #define PID_TORQUE_I                0.47
 #define PID_TORQUE_D                0
@@ -69,6 +71,9 @@ void reset_rotor_virtual_position(motor_id motor)
     //Force rotor into known position
     PWM::get(motor).set_pwm_high(false, true, false);
     PWM::get(motor).set_pwm_low(true, false, true);
+
+    //Wait for rotor to physically rotate
+    vTaskDelay(VIRTUAL_POSITION_RESET_TIME_MS / portTICK_PERIOD_MS);
 
     //Reset virtual position field in QEncoder class
     QEncoder::get(motor).reset_virtual_position();

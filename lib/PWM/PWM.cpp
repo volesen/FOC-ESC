@@ -97,7 +97,7 @@ PWM& PWM::get(motor_id motor)
     }
 }
 
-float PWM::get_pwm_max_bound() const
+float PWM::get_phases_max_bound() const
 {
     // if (!_initialized)
     //     throw 0;
@@ -105,7 +105,7 @@ float PWM::get_pwm_max_bound() const
         return _pwm_max_bound;
 }
 
-pwm_phases PWM::get_pwm() const
+pwm_phases PWM::get_phases() const
 {
     // if (!_initialized)
     //     throw 0;

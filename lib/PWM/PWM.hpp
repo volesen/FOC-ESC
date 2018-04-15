@@ -87,14 +87,14 @@ class PWM
        * 
        * @return A float representing the highest pwm phase magnitude passed to set_pwm.
        */
-      virtual float get_pwm_max_bound() const;
+      virtual float get_phases_max_bound() const;
 
       /**
        * @brief Gets pwm_phases struct containing decorrected pwm values.
        * 
        * @return pwm_phases struct containing decorrected pwm values.
        */
-      virtual pwm_phases get_pwm() const;
+      virtual pwm_phases get_phases() const;
 
       /**
        * @brief Correct/scale input parameter to pwm period values, save corrected parameter, and update PWM output to new values.
