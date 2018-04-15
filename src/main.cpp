@@ -16,30 +16,6 @@ uint32_t iteration = 0;
 uint16_t angle = 0;
 
 
-PID_Controller pid_waste, pid_torque;
-ADC_Motor adc_motor0, adc_motor1;
-
-void initialize_classes()
-{
-    //Initialize serial interface
-    ASerial::initialize();
-
-    //Initialize PID controllers
-    //                          P     I     D  I_max_change
-    pid_waste =  PID_Controller(0.3 , 0.2 , 0, 0.5);
-    pid_torque = PID_Controller(0.62, 0.47, 0, 0.4);
-
-    //Initialize ADCs for current measurement
-    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor0);
-    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor1);
-
-    //Initialize quadrature encoders
-    QEncoder::initialize_all();
-
-    //Initialize PWM module
-    Motor::initialize_all();
-}
-
 void setup()
 {
     initialize_classes();
@@ -119,6 +95,30 @@ void setup()
         // Serial.println(c / 40000);
         // Serial.println(d / 40000);
     // }
+}
+
+PID_Controller pid_waste, pid_torque;
+ADC_Motor adc_motor0, adc_motor1;
+
+void initialize_classes()
+{
+    //Initialize serial interface
+    ASerial::initialize();
+
+    //Initialize PID controllers
+    //                          P     I     D  I_max_change
+    pid_waste =  PID_Controller(0.3 , 0.2 , 0, 0.5);
+    pid_torque = PID_Controller(0.62, 0.47, 0, 0.4);
+
+    //Initialize ADCs for current measurement
+    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor0);
+    adc_motor0 = ADC_Motor(ADC_PHASE_PAIR::Motor1);
+
+    //Initialize quadrature encoders
+    QEncoder::initialize_all();
+
+    //Initialize PWM module
+    Motor::initialize_all();
 }
 
 void loop() 

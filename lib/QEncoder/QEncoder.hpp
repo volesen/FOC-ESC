@@ -27,7 +27,8 @@ class QEncoder
       static void initialize_all();
       static QEncoder& get(char id);
 
-      void reset_position();
+      void reset_virtual_position();
+      void reset_axis_position();
 
       char get_pin_interrupt() const;
       char get_pin_secondary() const;
