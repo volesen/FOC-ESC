@@ -3,7 +3,7 @@
 #include "ESC.hpp"
 
 #include "Transform.hpp"
-#include "Motor.hpp"
+#include "PWM.hpp"
 #include "QEncoder.hpp"
 #include "ASerial.hpp"
 
@@ -31,7 +31,8 @@ ESC::ESC()
     initialize_classes();
 
     //Align rotor so that position is known
-    reset_rotor_virtual_position(motor_id::motor0);
+    for (int i = 0; i < NUM_MOTORS; i++)
+        reset_rotor_virtual_position((motor_id)i);
 }
 
 void ESC::initialize_classes()
@@ -57,7 +58,7 @@ void ESC::initialize_classes()
     QEncoder::initialize_all();
 
     //Initialize PWM module
-    Motor::initialize_all();
+    PWM::initialize_all();
 }
 
 void reset_rotor_virtual_position(motor_id motor)

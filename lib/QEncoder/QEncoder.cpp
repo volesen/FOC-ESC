@@ -28,24 +28,24 @@ QEncoder::QEncoder(char pin_interrupt, char pin_secondary, void (*interrupt_hand
 
 void QEncoder::initialize_all()
 {
-    get(0);
-    get(1);
+    get(motor0);
+    get(motor1);
 }
 
-QEncoder& IRAM_ATTR QEncoder::get(char id)
+QEncoder& IRAM_ATTR QEncoder::get(motor_id motor)
 {
     //I do not feel like protecting against people deleting the object the pointer points to
     //This seems unnecessary given the circumstances the code is going to be used in.
-    switch (id)
+    switch (motor)
     {
-        case 0:
+        case motor0:
         {   //The brackets are used to create a new scope so that the variable Encoder can be used multiple times
             static QEncoder Encoder(Encoder0_pin_int, Encoder0_pin_sec, handle_interrupt_encoder0);
 
             return Encoder;
         }
             
-        case 1:
+        case motor1:
         {
             static QEncoder Encoder(Encoder1_pin_int, Encoder1_pin_sec, handle_interrupt_encoder1);
 
@@ -61,12 +61,12 @@ QEncoder& IRAM_ATTR QEncoder::get(char id)
 
 void IRAM_ATTR QEncoder::handle_interrupt_encoder0()
 {
-    handle_interrupt(&get(0));
+    handle_interrupt(&get(motor0));
 }
 
 void IRAM_ATTR QEncoder::handle_interrupt_encoder1()
 {
-    handle_interrupt(&get(1));
+    handle_interrupt(&get(motor1));
 }
 
 void IRAM_ATTR QEncoder::handle_interrupt(QEncoder* const encoder)

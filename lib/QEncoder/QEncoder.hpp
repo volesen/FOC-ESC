@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include "ESC_Globals.hpp"
 
 class QEncoder
 {
@@ -25,7 +26,7 @@ class QEncoder
       ~QEncoder();
 
       static void initialize_all();
-      static QEncoder& get(char id);
+      static QEncoder& get(motor_id motor);
 
       void reset_virtual_position();
       void reset_axis_position();
