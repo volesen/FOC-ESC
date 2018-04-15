@@ -2,42 +2,6 @@
 
 //TODO:write more comments
 
-pid_pair::pid_pair(pid_config waste, pid_config torque)
-    : waste(waste), torque(torque) {}
-
-pid_pair& PID::get(motor_id motor, pid_config waste, pid_config torque)
-{
-    //I do not feel like protecting against people deleting the object the pointer points to
-    //This seems unnecessary given the circumstances the code is going to be used in.
-    switch (motor)
-    {
-        case motor0:
-        {   //The brackets are used to create a new scope so that the variable instance can be used multiple times
-            static pid_pair instance(waste, torque);
-
-            return instance;
-        }
-            
-        case motor1:
-        {
-            static pid_pair instance(waste, torque);
-
-            return instance;
-        }
-
-        default:
-            //TODO: Throw an error or something
-            break;
-    }
-}
-
-void PID::initialize_all(pid_config waste, pid_config torque)
-{
-    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
-        get((motor_id)motor, waste, torque);
-}
-
-
 pid_config::pid_config(float p, float i, float d, 
                        float i_max_change_per_cycle, 
                        uint32_t d_window_fast, uint32_t d_window_slow)
@@ -122,4 +86,39 @@ float PID_Controller::update(const float &measurement, const float &reference)
 
     //Return result
     return p_term + i_term + d_term;
+}
+
+pid_pair::pid_pair(pid_config waste, pid_config torque)
+    : waste(waste), torque(torque) {}
+
+pid_pair& PID::get(motor_id motor, pid_config waste, pid_config torque)
+{
+    //I do not feel like protecting against people deleting the object the pointer points to
+    //This seems unnecessary given the circumstances the code is going to be used in.
+    switch (motor)
+    {
+        case motor0:
+        {   //The brackets are used to create a new scope so that the variable instance can be used multiple times
+            static pid_pair instance(waste, torque);
+
+            return instance;
+        }
+            
+        case motor1:
+        {
+            static pid_pair instance(waste, torque);
+
+            return instance;
+        }
+
+        default:
+            //TODO: Throw an error or something
+            break;
+    }
+}
+
+void PID::initialize_all(pid_config waste, pid_config torque)
+{
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+        get((motor_id)motor, waste, torque);
 }

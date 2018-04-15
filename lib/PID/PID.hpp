@@ -5,27 +5,6 @@
 
 //TODO: write documentation
 
-struct pid_pair
-{
-    pid_pair(pid_config waste = pid_config(), 
-             pid_config torque = pid_config());
-
-    PID_Controller waste;
-    PID_Controller torque;
-};
-
-class PID
-{
-    public:
-        //Sorry, this is bad...
-        //The get+initialize pattern is contagious... too late now
-        static pid_pair& get(motor_id motor, 
-                             pid_config waste = pid_config(), 
-                             pid_config torque = pid_config());
-        static void initialize_all(pid_config waste = pid_config(), 
-                                   pid_config torque = pid_config());
-};
-
 struct pid_config
 {
     pid_config(float p = 0, float i = 0, float d = 0, 
@@ -64,4 +43,25 @@ class PID_Controller
 
         //Methods
         float update(const float &measurement, const float &reference);
+};
+
+struct pid_pair
+{
+    pid_pair(pid_config waste = pid_config(), 
+             pid_config torque = pid_config());
+
+    PID_Controller waste;
+    PID_Controller torque;
+};
+
+class PID
+{
+    public:
+        //Sorry, this is bad...
+        //The get+initialize pattern is contagious... too late now
+        static pid_pair& get(motor_id motor, 
+                             pid_config waste = pid_config(), 
+                             pid_config torque = pid_config());
+        static void initialize_all(pid_config waste = pid_config(), 
+                                   pid_config torque = pid_config());
 };

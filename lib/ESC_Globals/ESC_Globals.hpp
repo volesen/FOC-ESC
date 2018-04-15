@@ -4,7 +4,7 @@
 #define ELECTRIC_ROTATION_STEPS 342		// ceil(MECHANICAL_ROTATION_STEPS / 6)
 
 
-#define NUM_MOTORS 2
+#define NUM_MOTORS 2        //Size of motor_id enum
 
 enum motor_id : uint8_t
 {

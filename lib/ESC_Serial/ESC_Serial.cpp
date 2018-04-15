@@ -3,8 +3,8 @@
 #define TX_PIN 1
 #define RX_PIN 3
 
-#define MAX_INPUT_SPEED 4095.0
-#define MAX_OUTPUT_SPEED 1.00
+#define MAX_INPUT_THROTTLE 4095.0
+#define MAX_OUTPUT_THROTTLE 1.00
 
 #define ESC_Serial_BAUDRATE 921600
 
@@ -26,7 +26,7 @@
 //ID  Parity  Linked parity   Position request  Direction   Motor ID
 //{1} {1}     {2}             {1}               {1}         {2}
 //Data packets
-//ID  Parity  Speed
+//ID  Parity  Throttle
 //{1} {1}     {6}
 
 #define GET_ID_BIT(byte) get_bit(byte, 7)
@@ -36,7 +36,7 @@
 #define GET_POS_REQ_BIT(byte) get_bit(byte, 3)
 #define GET_DIRECTION_BIT(byte) get_bit(byte, 2)
 #define GET_MOTOR_ID_BITS(byte) (byte & 3) //Mask away everything but the two least significant bits
-#define GET_SPEED_BITS(byte) (byte & 63)   //Mask away the two most significant bits
+#define GET_THROTTLE_BITS(byte) (byte & 63)   //Mask away the two most significant bits
 
 #pragma endregion
 
@@ -185,13 +185,13 @@ void ESC_Serial::process_transmission()
 
     _direction[target_motor] = GET_DIRECTION_BIT(scope_buffer[PMASTER]);
 
-    //First data packet contains the lower order speed
-    //Second data packet contains the higher order speed
-    _speed[target_motor] = GET_SPEED_BITS(scope_buffer[PDATA0]) |
-                          (GET_SPEED_BITS(scope_buffer[PDATA1]) << 6);
+    //First data packet contains the lower order throttle
+    //Second data packet contains the higher order throttle
+    _throttle[target_motor] = GET_THROTTLE_BITS(scope_buffer[PDATA0]) |
+                             (GET_THROTTLE_BITS(scope_buffer[PDATA1]) << 6);
 
     //Set update status so external code knows.
-    //All get properties have been updated, so get_speed is ready now.
+    //All get properties have been updated, so get_throttle is ready now.
     _updated[target_motor] = true;
 
     //If controller requests current position
@@ -237,7 +237,7 @@ ESC_Serial::ESC_Serial(int baudrate)
     for (int i = 0; i < NUM_MOTORS; i++)
     {
         std::atomic_init(_direction + i, true);
-        _speed[i] = 0;
+        _throttle[i] = 0;
         _position[i] = 0;
 
         std::atomic_init(_updated + i, false);
@@ -254,17 +254,17 @@ bool ESC_Serial::ask_updated(motor_id motor)
     return _updated[motor];
 }
 
-float ESC_Serial::get_speed(motor_id motor)
+float ESC_Serial::get_throttle(motor_id motor)
 {
     //Copied to minimize chance of being blocked by accessing atomic variables
     //which creates two opportunities for a block
-    float speed = (float)_speed[motor] 
+    float throttle = (float)_throttle[motor] 
                 * (_direction[motor] ? 1 : -1); //Make negative if CC direction
 
     if (_updated[motor])
         _updated[motor] = false;
 
-    return speed / MAX_INPUT_SPEED * MAX_OUTPUT_SPEED;
+    return throttle / MAX_INPUT_THROTTLE * MAX_OUTPUT_THROTTLE;
 }
 
 void ESC_Serial::update_position(uint16_t position, motor_id motor)

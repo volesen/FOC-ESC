@@ -11,6 +11,8 @@
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 80
 
+#define THROTTLE_SCALER 100
+
 const pid_config waste(0.3, //P
                        0.2, //I
                        0,   //D
@@ -81,29 +83,36 @@ void ESC::initialize() { get(); }
 
 void ESC::update()
 {
-    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+    for (uint8_t id = 0; id < NUM_MOTORS; id++)
     {
+        //Convert id to motor_id
+        motor_id motor = (motor_id)id;
+
         //Get phase A and B currents 
         //Calculate current C via Kirchoffs current law
         pwm_phases phases {0, 0, 0};
-        ADC_Motor::get((motor_id)motor)
-                  .get_samples(phases.A, phases.A);
-        phases.C = - phases.C - phases.A;
+        ADC_Motor::get(motor)
+                  .get_samples(phases.A, phases.B);
+        phases.C = - phases.A - phases.B;
 
         //Get virtual angle of rotor
-        uint32_t virtual_angle = QEncoder::get((motor_id)motor)
+        uint32_t virtual_angle = QEncoder::get(motor)
                                           .get_virtual_position();
         
+        //Get throttle including direction
+        float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
+
         //Transform phases to rotating reference frame
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
-        //PID stuff
-        //and also speed and direction stuff
+        //Update PI-loops
+        waste_torque.d = PID::get(motor).waste.update(waste_torque.d, 0);
+        waste_torque.q = PID::get(motor).torque.update(waste_torque.d, throttle);
 
         //Transform rotating reference frame to phases
         phases = Transform::to_phase(virtual_angle, waste_torque);
         
         //Stage PWM output to be updated
-        PWM::get((motor_id)motor).set_phases(phases);
+        PWM::get(motor).set_phases(phases);
     }
 }
