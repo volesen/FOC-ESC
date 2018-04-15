@@ -102,7 +102,7 @@ float PWM::get_phases_max_bound() const
     // if (!_initialized)
     //     throw 0;
     // else
-        return _pwm_max_bound;
+        return _phases_max_bound;
 }
 
 pwm_phases PWM::get_phases() const
@@ -110,10 +110,10 @@ pwm_phases PWM::get_phases() const
     // if (!_initialized)
     //     throw 0;
     // else
-        return _pwm.create_decorrected(_pwm_max_bound);
+        return _phases.create_decorrected(_phases_max_bound);
 }
 
-void PWM::set_pwm(const pwm_phases &pwm)
+void PWM::set_phases(const pwm_phases &pwm)
 {
     // if (!_initialized)
     //     throw 0;
@@ -121,64 +121,64 @@ void PWM::set_pwm(const pwm_phases &pwm)
     // {
         float max = pwm.get_max();
 
-        if (max > _pwm_max_bound)
-            _pwm_max_bound = max;
+        if (max > _phases_max_bound)
+            _phases_max_bound = max;
 
-        _pwm = pwm.create_corrected(_pwm_max_bound);
+        _phases = pwm.create_corrected(_phases_max_bound);
         
-        update_pwm();
+        update_phases();
     // }
 
 }
 
-void PWM::set_pwm(const float &A, const float &B, const float &C)
+void PWM::set_phases(const float &A, const float &B, const float &C)
 {
     //This is the overloaded function even though it is inefficient to create a new struct
-    //This is because set_pwm(pwm) changes _pwm in one assignment.
-    //If set_pwm(A, B, C) was the "main" function then _pwm would have been assigned to four times with the straight forward approach.
-    //This is bad if an interrupt comes in the middle and tries to get _pwm.
-    //The _pwm value will potentially not have been scaled yet.
-    set_pwm(pwm_phases(A, B, C));
+    //This is because set_phases(pwm) changes _phases in one assignment.
+    //If set_phases(A, B, C) was the "main" function then _phases would have been assigned to four times with the straight forward approach.
+    //This is bad if an interrupt comes in the middle and tries to get _phases.
+    //The _phases value will potentially not have been scaled yet.
+    set_phases(pwm_phases(A, B, C));
 }
 
-void PWM::set_pwm_low(bool A, bool B, bool C)
+void PWM::set_phases_low(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
     // else
     // {
         if (A)
-            _pwm.A = 0;
+            _phases.A = 0;
         if (B)
-            _pwm.B = 0;
+            _phases.B = 0;
         if (C)
-            _pwm.C = 0;
+            _phases.C = 0;
 
-        update_pwm();
+        update_phases();
         // }
 }
 
-void PWM::set_pwm_high(bool A, bool B, bool C)
+void PWM::set_phases_high(bool A, bool B, bool C)
 {
     // if (!_initialized)
     //     throw 0;
     // else
     // {
         if (A)
-            _pwm.A = PWM_PERIOD;
+            _phases.A = PWM_PERIOD;
         if (B)
-            _pwm.B = PWM_PERIOD;
+            _phases.B = PWM_PERIOD;
         if (C)
-            _pwm.C = PWM_PERIOD;
+            _phases.C = PWM_PERIOD;
 
-        update_pwm();
+        update_phases();
     // }
 }
 
-void PWM::initialize_all(float initial_pwm_max_bound)
+void PWM::initialize_all(float initial_phases_max_bound)
 {
-    PWM::get(motor0).initialize(initial_pwm_max_bound);
-    PWM::get(motor1).initialize(initial_pwm_max_bound);
+    PWM::get(motor0).initialize(initial_phases_max_bound);
+    PWM::get(motor1).initialize(initial_phases_max_bound);
 }
 
 ///====================================================================================
@@ -189,7 +189,7 @@ bool PWM0::_initialized = false;
 PWM0::PWM0()
     : _pins{PWM0_pin_A, PWM0_pin_B, PWM0_pin_C}
 {
-    _pwm = pwm_phases(0, 0, 0);
+    _phases = pwm_phases(0, 0, 0);
 }
 
 PWM0& PWM0::get()
@@ -217,7 +217,7 @@ bool PWM0::get_initialized() const
     return PWM0::_initialized;
 }
 
-PWM0& PWM0::initialize(float initial_pwm_max_bound)
+PWM0& PWM0::initialize(float initial_phases_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -281,17 +281,17 @@ PWM0& PWM0::initialize(float initial_pwm_max_bound)
     _initialized = true;
 
     //Set initial max pwm bound
-    _pwm_max_bound = initial_pwm_max_bound;
+    _phases_max_bound = initial_phases_max_bound;
 
     //Return pwm so that settings can be set up immediately after with easy syntax
     return get();
 }
 
-void PWM0::update_pwm()
+void PWM0::update_phases()
 {
-    MCPWM0.channel[0].cmpr_value[0].cmpr_val = (uint32_t)_pwm.A;       //Set duty period of operator 0 (tied to channel 0) output A to _pwm.A
-    MCPWM0.channel[1].cmpr_value[0].cmpr_val = (uint32_t)_pwm.B;       //Set duty period of operator 1 (tied to channel 1) output A to _pwm.B
-    MCPWM0.channel[2].cmpr_value[0].cmpr_val = (uint32_t)_pwm.C;       //Set duty period of operator 2 (tied to channel 2) output A to _pwm.C
+    MCPWM0.channel[0].cmpr_value[0].cmpr_val = (uint32_t)_phases.A;       //Set duty period of operator 0 (tied to channel 0) output A to _phases.A
+    MCPWM0.channel[1].cmpr_value[0].cmpr_val = (uint32_t)_phases.B;       //Set duty period of operator 1 (tied to channel 1) output A to _phases.B
+    MCPWM0.channel[2].cmpr_value[0].cmpr_val = (uint32_t)_phases.C;       //Set duty period of operator 2 (tied to channel 2) output A to _phases.C
 }
 
 
@@ -303,7 +303,7 @@ bool PWM1::_initialized = false;
 PWM1::PWM1()
     : _pins{PWM1_pin_A, PWM1_pin_B, PWM1_pin_C}
 {
-    _pwm = pwm_phases(0, 0, 0);
+    _phases = pwm_phases(0, 0, 0);
 }
 
 PWM1& PWM1::get()
@@ -331,7 +331,7 @@ bool PWM1::get_initialized() const
     return PWM1::_initialized;
 }
 
-PWM1& PWM1::initialize(float initial_pwm_max_bound)
+PWM1& PWM1::initialize(float initial_phases_max_bound)
 {
     //Check if already initialized
     // if (_initialized)
@@ -395,15 +395,15 @@ PWM1& PWM1::initialize(float initial_pwm_max_bound)
     _initialized = true;
 
     //Set initial max pwm bound
-    _pwm_max_bound = initial_pwm_max_bound;
+    _phases_max_bound = initial_phases_max_bound;
 
     //Return pwm so that settings can be set up immediately after with easy syntax
     return get();
 }
 
-void PWM1::update_pwm()
+void PWM1::update_phases()
 {
-    MCPWM0.channel[0].cmpr_value[1].cmpr_val = (uint32_t)_pwm.A;       //Set duty period of operator 0 (tied to channel 0) output B to _pwm.A
-    MCPWM0.channel[1].cmpr_value[1].cmpr_val = (uint32_t)_pwm.B;       //Set duty period of operator 1 (tied to channel 1) output B to _pwm.B
-    MCPWM0.channel[2].cmpr_value[1].cmpr_val = (uint32_t)_pwm.C;       //Set duty period of operator 2 (tied to channel 2) output B to _pwm.C
+    MCPWM0.channel[0].cmpr_value[1].cmpr_val = (uint32_t)_phases.A;       //Set duty period of operator 0 (tied to channel 0) output B to _phases.A
+    MCPWM0.channel[1].cmpr_value[1].cmpr_val = (uint32_t)_phases.B;       //Set duty period of operator 1 (tied to channel 1) output B to _phases.B
+    MCPWM0.channel[2].cmpr_value[1].cmpr_val = (uint32_t)_phases.C;       //Set duty period of operator 2 (tied to channel 2) output B to _phases.C
 }
