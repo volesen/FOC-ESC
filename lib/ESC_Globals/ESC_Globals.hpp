@@ -1,7 +1,7 @@
 #pragma once
 
-#define MECHANICAL_ROTATION_STEPS 2048	// 2048 steps per mechanical rotation
-#define MAX_VIRTUAL_ANGLE 342		// ceil(MECHANICAL_ROTATION_STEPS / 6)
+#define ONE_ROTATION_STEPS 2048	            // 2048 steps per mechanical rotation
+#define ONE_VIRTUAL_ROTATION_STEPS 342		// ceil(ONE_ROTATION_STEPS / 6) (6 = pole pair count)
 
 #define NUM_MOTORS 2        //Size of motor_id enum
 

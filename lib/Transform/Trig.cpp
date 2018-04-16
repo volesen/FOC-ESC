@@ -11,7 +11,7 @@
 */
 
 float Trig::idx(uint16_t theta) {
-	int n = theta % MAX_VIRTUAL_ANGLE;
+	int n = theta % ONE_VIRTUAL_ROTATION_STEPS;
 	return n;
 }
 
