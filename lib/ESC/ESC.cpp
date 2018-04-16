@@ -11,7 +11,7 @@
 
 #define OPEN_LOOP_DEBUG_MODE 1
 
-#define VIRTUAL_POSITION_RESET_TIME_MS 80
+#define VIRTUAL_POSITION_RESET_TIME_MS 500
 
 #define THROTTLE_SCALER 1
 
@@ -63,7 +63,7 @@ void ESC::reset_rotor_virtual_position(motor_id motor)
 {
     //Store pwm_phases
     pwm_phases previous_phases = PWM::get(motor).get_phases();
-
+    
     //Force rotor into known position
     PWM::get(motor).set_phases_high(true, false, false);
     PWM::get(motor).set_phases_low(false, true, true);
@@ -143,6 +143,11 @@ void ESC::update()
     // Serial.println(throttle);
     // phases.A += 9;
     // phases.A *= 1.1;
+    float a, b;
+    ADC_Motor::get(motor1).get_samples(a, b);
+
+    Serial.print(a); Serial.print(",");
+    Serial.print(b); Serial.println();
 
     // phases.C += -20;
     // phases.C *= 0.98;
