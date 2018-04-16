@@ -109,8 +109,8 @@ bool ESC_Serial::check_validity()
 
 bool ESC_Serial::check_ids()
 {
-    return (GET_ID_BIT(scope_buffer[PDATA0]) &&
-            !GET_ID_BIT(scope_buffer[PDATA1]) &&
+    return (!GET_ID_BIT(scope_buffer[PDATA0]) &&
+            GET_ID_BIT(scope_buffer[PDATA1]) &&
             GET_ID_BIT(scope_buffer[PMASTER]));
 }
 
