@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#include <esp_task_wdt.h>
 #include "ESC_Serial.hpp"
 
 #define TX_PIN 1
@@ -63,7 +65,7 @@ void ESC_Serial::update_loop(void *input)
         get().process_transmission();
 
         // ATTENTION: Uncomment if Arduino framework is prevented from running
-        // vTaskDelay(10 / portTICK_PERIOD_MS);
+        // vTaskDelay(1 / portTICK_PERIOD_MS);
     }    
 }
 
@@ -246,6 +248,8 @@ ESC_Serial::ESC_Serial(int baudrate)
     //The update loop is given priority 0 which is the lowest priority.
     //We might hog all resources from the Arduino framework if we raise the priority.
     xTaskCreatePinnedToCore(update_loop, "update_loop", 4 * 1024, NULL, 0, NULL, 0);
+    //Unsubscribe from task watchdog as apparently I can't feed it correctly
+    esp_task_wdt_delete(xTaskGetIdleTaskHandleForCPU(0));
 }
 
 #pragma region Properties

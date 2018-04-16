@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <atomic>
-#include <Arduino.h>
 
 #include "ESC_Globals.hpp"
 
