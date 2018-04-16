@@ -13,7 +13,9 @@
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 500
 
-#define THROTTLE_SCALER 1
+//Idq.q is based off of currents. 40 is max current at 12V.
+//Not sure if torque vector can always reach at all angles so 40 is halve so it can reach max of 20.
+#define THROTTLE_SCALER 20      
 
 const pid_config waste(0.3, //P
                        0.2, //I
@@ -120,8 +122,8 @@ void ESC::update()
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
         //Update PI-loops
-        waste_torque.d = PID::get(motor).waste.update(waste_torque.d, 0);
-        waste_torque.q = PID::get(motor).torque.update(waste_torque.q, throttle);
+        waste_torque.d += PID::get(motor).waste.update(waste_torque.d, 0);
+        waste_torque.q += PID::get(motor).torque.update(waste_torque.q, throttle);
         
         //Transform rotating reference frame to phases
         phases = Transform::to_phase(virtual_angle, waste_torque);
@@ -135,11 +137,11 @@ void ESC::update()
 {
     static uint16_t virtual_angle = 0;
     static pwm_phases phases {0, 0, 0};
-    static float throttle = 0;
+    static float throttle = 40;
 
     Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
-    throttle = ESC_Serial::get().get_throttle(motor1);
+    // throttle = ESC_Serial::get().get_throttle(motor1);
 
     // throttle = sin((float)virtual_angle / (MAX_VIRTUAL_ANGLE - 1.0) * 2.0 * PI) + 1;
 
@@ -148,24 +150,28 @@ void ESC::update()
 
     phases = Transform::to_phase(virtual_angle, waste_torque);
     // Serial.println(throttle);
-    // phases.A += 9;
+    phases.A += 9;
     // phases.A *= 1.1;
-    float a, b;
-    ADC_Motor::get(motor1).get_samples(a, b);
+
+    phases.C += -20;
+    // phases.C *= 0.98;
+    
+    // Serial.print(Transform::to_phase(86, Idq {0, 10}).A); Serial.print(",");
+    // Serial.print(Transform::to_phase(86, Idq {0, 10}).B); Serial.print(",");
+    // Serial.println(Transform::to_phase(86, Idq {0, 10}).C);
 
     // Serial.print(a); Serial.print(",");
     // Serial.print(b); Serial.println();
 
-    // phases.C += -20;
-    // phases.C *= 0.98;
+    
 
-    // Serial.print(waste_torque.d); Serial.print(",");
-    // Serial.print(waste_torque.q); Serial.print(",");
-    // Serial.print(phases.A); Serial.print(",");
-    // Serial.print(phases.B); Serial.print(",");
-    // Serial.print(phases.C); Serial.println();
+    Serial.print(waste_torque.d); Serial.print(",");
+    Serial.print(waste_torque.q); Serial.print(",");
+    Serial.print(phases.A); Serial.print(",");
+    Serial.print(phases.B); Serial.print(",");
+    Serial.print(phases.C); Serial.println();
 
-    // PWM::get(motor1).set_phases(phases);
+    PWM::get(motor1).set_phases(phases);
 
     virtual_angle = ++virtual_angle % MAX_VIRTUAL_ANGLE;
 }
