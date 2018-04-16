@@ -37,7 +37,7 @@ ESC::ESC()
     initialize_classes();
 
     //Align rotors so that virtual position is known
-    for (int motor = 0; motor < NUM_MOTORS; motor++)
+    for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
         reset_rotor_virtual_position((motor_id)motor);
 }
 
@@ -75,7 +75,14 @@ void ESC::reset_rotor_virtual_position(motor_id motor)
     QEncoder::get(motor).reset_virtual_position();
 
     //Restore pwm_phases
-    PWM::get(motor).set_phases(previous_phases);
+    if (PWM::get(motor).get_phases_max_bound() != 0)
+        //Restore saved phases
+        PWM::get(motor).set_phases(previous_phases);
+    else
+        //Set low if PWM::set_phase hasn't been called yet for values
+        //This avoid a bug at startup where PWM is low before entering this function,
+        //but becomes 50 % (neutral) after leaving
+        PWM::get(motor).set_phases_low();
 }
 
 #pragma endregion
@@ -146,8 +153,8 @@ void ESC::update()
     float a, b;
     ADC_Motor::get(motor1).get_samples(a, b);
 
-    Serial.print(a); Serial.print(",");
-    Serial.print(b); Serial.println();
+    // Serial.print(a); Serial.print(",");
+    // Serial.print(b); Serial.println();
 
     // phases.C += -20;
     // phases.C *= 0.98;
@@ -158,7 +165,7 @@ void ESC::update()
     // Serial.print(phases.B); Serial.print(",");
     // Serial.print(phases.C); Serial.println();
 
-    PWM::get(motor1).set_phases(phases);
+    // PWM::get(motor1).set_phases(phases);
 
     virtual_angle = ++virtual_angle % MAX_VIRTUAL_ANGLE;
 }

@@ -54,7 +54,7 @@ void ESC_Serial::update_loop(void *input)
 
     while (true)
     {
-        //I think this allows other things to run on CPU 0
+        //I think this allows other tasks to run on CPU 0
         yield();
 
         //If no update to scope_buffer or there are not three packets, continue
