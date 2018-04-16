@@ -135,18 +135,18 @@ void ESC::update()
     waste_torque.q = PID::get(motor0).torque.update(waste_torque.q, 50);
 
     phases = Transform::to_phase(virtual_angle, waste_torque);
-
+    
     // phases.A += 9;
     // phases.A *= 1.1;
 
     // phases.C += -20;
     // phases.C *= 0.98;
 
-    Serial.print(waste_torque.d); Serial.print(",");
-    Serial.print(waste_torque.q); Serial.print(",");
-    Serial.print(phases.A); Serial.print(",");
-    Serial.print(phases.B); Serial.print(",");
-    Serial.print(phases.C); Serial.println();
+    // Serial.print(waste_torque.d); Serial.print(",");
+    // Serial.print(waste_torque.q); Serial.print(",");
+    // Serial.print(phases.A); Serial.print(",");
+    // Serial.print(phases.B); Serial.print(",");
+    // Serial.print(phases.C); Serial.println();
 
     PWM::get(motor0).set_phases(phases);
 

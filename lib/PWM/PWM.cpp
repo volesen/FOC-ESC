@@ -7,13 +7,13 @@
 #define TIMER_FREQUENCY (MCPWM_FREQUENCY/(TIMER_CLK_PRESCALE + 1))  //Final timer frequency
 #define PWM_PERIOD (TIMER_FREQUENCY/PWM_FREQUENCY)                  //PWM period length in timer ticks
 
-#define PWM0_pin_A 12
-#define PWM0_pin_B 14
-#define PWM0_pin_C 27
+#define PWM0_pin_A 32
+#define PWM0_pin_B 33
+#define PWM0_pin_C 25
 
-#define PWM1_pin_A 25
-#define PWM1_pin_B 33
-#define PWM1_pin_C 32
+#define PWM1_pin_C 27
+#define PWM1_pin_B 14
+#define PWM1_pin_A 12
 
 
 #include <Arduino.h>
@@ -237,7 +237,6 @@ PWM0& PWM0::initialize(float initial_phases_max_bound)
         PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[(gpio_num_t)_pins[i]], PIN_FUNC_GPIO);
 
         //Set GPIO pin to output
-        //Serial.println((gpio_num_t)_pins[i]);
         gpio_set_direction((gpio_num_t)_pins[i], GPIO_MODE_OUTPUT);
         
         //Route PWM operator output 0A, 1A, 2A to their respective pins via the GPIO matrix. 
@@ -351,7 +350,6 @@ PWM1& PWM1::initialize(float initial_phases_max_bound)
         PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[(gpio_num_t)_pins[i]], PIN_FUNC_GPIO);
 
         //Set GPIO pin to output
-        //Serial.println((gpio_num_t)_pins[i]);
         gpio_set_direction((gpio_num_t)_pins[i], GPIO_MODE_OUTPUT);
         
         //Route PWM operator output 0B, 1B, 2B to their respective pins via the GPIO matrix. 
