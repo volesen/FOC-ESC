@@ -131,8 +131,10 @@ void ESC::update()
 
     Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
-    waste_torque.d = PID::get(motor0).waste.update(waste_torque.d, 0);
-    waste_torque.q = PID::get(motor0).torque.update(waste_torque.q, 50);
+    uint16_t throttle = ESC_Serial::get().get_throttle(motor1);
+
+    waste_torque.d = PID::get(motor1).waste.update(waste_torque.d, 0);
+    waste_torque.q = PID::get(motor1).torque.update(waste_torque.q, throttle);
 
     phases = Transform::to_phase(virtual_angle, waste_torque);
     
@@ -148,9 +150,9 @@ void ESC::update()
     // Serial.print(phases.B); Serial.print(",");
     // Serial.print(phases.C); Serial.println();
 
-    PWM::get(motor0).set_phases(phases);
+    PWM::get(motor1).set_phases(phases);
 
-    virtual_angle = ++virtual_angle % ELECTRIC_ROTATION_STEPS;
+    virtual_angle = ++virtual_angle % MAX_VIRTUAL_ANGLE;
 }
 
 #endif
