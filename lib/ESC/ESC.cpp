@@ -90,7 +90,7 @@ void ESC::update()
         motor_id motor = (motor_id)id;
 
         //Get phase A and B currents 
-        //Calculate current C via Kirchoffs current law
+        //Calculate current C via Kirchoff's current law
         pwm_phases phases {0, 0, 0};
         ADC_Motor::get(motor)
                   .get_samples(phases.A, phases.B);

@@ -23,7 +23,7 @@ class ESC_Serial
     #pragma region Fields
     volatile std::atomic<bool> _direction[NUM_MOTORS]; //true:positive CC, false:negative CW
     volatile std::atomic<uint16_t> _throttle[NUM_MOTORS];
-    volatile std::atomic<uint16_t> _position[NUM_MOTORS];
+    volatile std::atomic<uint32_t> _position[NUM_MOTORS];
 
     uint8_t scope_buffer_data_available;
     uint8_t scope_buffer[3];
@@ -83,7 +83,7 @@ class ESC_Serial
      * @param motor_id motor Motor to update position of.
      * 
      */
-    void update_position(motor_id motor, uint16_t position);
+    void update_position(motor_id motor, uint32_t position);
 
     #pragma endregion
 };

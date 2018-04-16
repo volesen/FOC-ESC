@@ -199,10 +199,10 @@ void ESC_Serial::process_transmission()
     {
         //Copy position to avoid two atomic checks
         //and to avoid a block if position is updated inbetween serial byte writes
-        uint16_t position = _position[target_motor];
+        uint32_t position = _position[target_motor];
         //Put current position into tx buffer
         //Least significant bits are written first
-        Serial.write((uint8_t *)&position, 2);
+        Serial.write((uint8_t *)&position, 3);
         //Block and force tx buffer to send
         Serial.flush();
     }
@@ -267,7 +267,7 @@ float ESC_Serial::get_throttle(motor_id motor)
     return throttle / MAX_INPUT_THROTTLE * MAX_OUTPUT_THROTTLE;
 }
 
-void ESC_Serial::update_position(motor_id motor, uint16_t position)
+void ESC_Serial::update_position(motor_id motor, uint32_t position)
 {
     _position[motor] = position;
 }
