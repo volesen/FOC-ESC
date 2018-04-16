@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <esp_task_wdt.h>
+
 #include "ESC_Serial.hpp"
 
 #define TX_PIN 1
@@ -53,6 +54,9 @@ void ESC_Serial::update_loop(void *input)
 
     while (true)
     {
+        //I think this allows other things to run on CPU 0
+        yield();
+
         //If no update to scope_buffer or there are not three packets, continue
         //If scope_buffer was updated, check scope_buffer for valid transmission,
         //continue if no valid transmission
