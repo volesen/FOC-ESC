@@ -3,8 +3,7 @@
 #define MECHANICAL_ROTATION_STEPS 2048	// 2048 steps per mechanical rotation
 #define ELECTRIC_ROTATION_STEPS 342		// ceil(MECHANICAL_ROTATION_STEPS / 6)
 
-//TODO: TESTING Change back to 2
-#define NUM_MOTORS 1        //Size of motor_id enum
+#define NUM_MOTORS 2        //Size of motor_id enum
 
 enum motor_id : uint8_t
 {

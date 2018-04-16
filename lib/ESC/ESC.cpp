@@ -9,10 +9,11 @@
 #include "PWM.hpp"
 #include "Transform.hpp"
 
+#define OPEN_LOOP_DEBUG_MODE 1
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 80
 
-#define THROTTLE_SCALER 100
+#define THROTTLE_SCALER 1
 
 const pid_config waste(0.3, //P
                        0.2, //I
@@ -82,6 +83,7 @@ void ESC::reset_rotor_virtual_position(motor_id motor)
 ESC& ESC::get() { static ESC instance{}; return instance; }
 void ESC::initialize() { get(); }
 
+#if OPEN_LOOP_DEBUG_MODE == 0
 void ESC::update()
 {
     for (uint8_t id = 0; id < NUM_MOTORS; id++)
@@ -121,3 +123,34 @@ void ESC::update()
         PWM::get(motor).set_phases(phases);
     }
 }
+#elif OPEN_LOOP_DEBUG_MODE == 1
+void ESC::update()
+{
+    static uint16_t virtual_angle = 0;
+    static pwm_phases phases {0, 0, 0};
+
+    Idq waste_torque = Transform::de_phase(virtual_angle, phases);
+
+    waste_torque.d = PID::get(motor0).waste.update(waste_torque.d, 0);
+    waste_torque.q = PID::get(motor0).torque.update(waste_torque.q, 50);
+
+    phases = Transform::to_phase(virtual_angle, waste_torque);
+
+    // phases.A += 9;
+    // phases.A *= 1.1;
+
+    // phases.C += -20;
+    // phases.C *= 0.98;
+
+    Serial.print(waste_torque.d); Serial.print(",");
+    Serial.print(waste_torque.q); Serial.print(",");
+    Serial.print(phases.A); Serial.print(",");
+    Serial.print(phases.B); Serial.print(",");
+    Serial.print(phases.C); Serial.println();
+
+    PWM::get(motor0).set_phases(phases);
+
+    virtual_angle = ++virtual_angle % ELECTRIC_ROTATION_STEPS;
+}
+
+#endif
