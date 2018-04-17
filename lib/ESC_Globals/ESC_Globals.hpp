@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define DEFAULT_START_POSITION 2147483647       // MAX_UINT32_T / 2 -1
 

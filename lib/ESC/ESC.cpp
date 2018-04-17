@@ -140,7 +140,7 @@ void ESC::update()
         waste_torque.d = PID::get(motor).waste.update(waste_torque.d, 0);
         // This is not overflow safe. 
         // Position and relative position control is inherently flawed against overflow.
-        // General protection will ruin the PID-loop.
+        // General overflow protection will ruin the PID-loop.
         // Everything works without overflow protection, though, as long as no overflows happen.
         waste_torque.q = PID::get(motor).torque.update(position, target_position[motor]);
         
@@ -164,8 +164,8 @@ void ESC::update()
 
     // throttle = sin((float)virtual_angle / (ONE_VIRTUAL_ROTATION_STEPS - 1.0) * 2.0 * PI) + 1;
 
-    waste_torque.d += PID::get(motor1).waste.update(waste_torque.d, 0);
-    waste_torque.q += PID::get(motor1).torque.update(waste_torque.q, throttle);
+    waste_torque.d += PID::get(motor0).waste.update(waste_torque.d, 0);
+    waste_torque.q += PID::get(motor0).torque.update(waste_torque.q, throttle);
 
     phases = Transform::to_phase(virtual_angle, waste_torque);
     // Serial.println(throttle);
@@ -174,23 +174,19 @@ void ESC::update()
 
     // phases.C += -20;
     // phases.C *= 0.98;
-    
-    Serial.print(Transform::to_phase(0, Idq {0, 40}).A); Serial.print(",");
-    Serial.print(Transform::to_phase(0, Idq {0, 40}).B); Serial.print(",");
-    Serial.println(Transform::to_phase(0, Idq {0, 40}).C);
 
     // Serial.print(a); Serial.print(",");
     // Serial.print(b); Serial.println();
 
     
 
-    // Serial.print(waste_torque.d); Serial.print(",");
-    // Serial.print(waste_torque.q); Serial.print(",");
-    // Serial.print(phases.A); Serial.print(",");
-    // Serial.print(phases.B); Serial.print(",");
-    // Serial.print(phases.C); Serial.println();
+    Serial.print(waste_torque.d); Serial.print(",");
+    Serial.print(waste_torque.q); Serial.print(",");
+    Serial.print(phases.A); Serial.print(",");
+    Serial.print(phases.B); Serial.print(",");
+    Serial.print(phases.C); Serial.println();
 
-    PWM::get(motor1).set_phases(phases);
+    PWM::get(motor0).set_phases(phases);
 
     virtual_angle = ++virtual_angle % ONE_VIRTUAL_ROTATION_STEPS;
 }

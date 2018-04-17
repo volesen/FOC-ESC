@@ -65,7 +65,7 @@ double PID_Controller::update(const double &error)
     //This will cause the d_term contribution to be small
     
     //Update new error window sum
-    int32_t error_iteration_limit_new = error_iteration - error_rolling_window_fast < 0 
+    uint32_t error_iteration_limit_new = error_iteration < error_rolling_window_fast
                                         ? error_rolling_window_slow + error_iteration - error_rolling_window_fast
                                         : error_iteration - error_rolling_window_fast;
 
