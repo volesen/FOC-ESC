@@ -208,7 +208,7 @@ void ESC_Serial::process_transmission()
         uint32_t position = _position[target_motor];
         //Put current position into tx buffer
         //Least significant bits are written first
-        Serial.write((uint8_t *)&position, 3);
+        Serial.write((uint8_t *)&position, 4);
         //Block and force tx buffer to send
         Serial.flush();
     }

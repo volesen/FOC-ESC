@@ -13,9 +13,7 @@
 
 #define VIRTUAL_POSITION_RESET_TIME_MS 500
 
-//Idq.q is based off of currents. 40 is max current at 12V.
-//Not sure if torque vector can always reach at all angles so 40 is halve so it can reach max of 20.
-#define  (1.0/360.0 * )
+#define POSITION_CHANGE_SCALER 7
 
 const pid_config waste(0.3, //P
                        0.2, //I
