@@ -7,42 +7,43 @@
 
 struct pid_config
 {
-    pid_config(float p = 0, float i = 0, float d = 0, 
-               float i_max_change = 9999999, 
+    pid_config(double p = 0, double i = 0, double d = 0, 
+               double i_max_change = 9999999, 
                uint32_t d_window_fast = 1, uint32_t d_window_slow = 2);
 
-    float p, i, d, i_max_change_per_cycle;
+    double p, i, d, i_max_change_per_cycle;
     uint32_t d_window_fast, d_window_slow;
 };
 
 class PID_Controller
 {
     private:
-        float p_term;
-        float i_term;
-        float d_term;
+        double p_term;
+        double i_term;
+        double d_term;
 
-        float i_term_previous;
-        float i_max_change_per_cycle;
+        double i_term_previous;
+        double i_max_change_per_cycle;
 
-        float error_sum_fast, error_sum_slow;
+        double error_sum_fast, error_sum_slow;
         int32_t error_iteration;
         int32_t error_rolling_window_fast, error_rolling_window_slow;
-        float *errors;
+        double *errors;
 
       public:
         //Fields
-        float p, i, d;
+        double p, i, d;
 
         //Constructor
         PID_Controller(pid_config config);
-        //PID_Controller(float p = 0, float i = 0, float d = 0, float i_max_change = 9999999, int32_t d_window_fast = 1, int32_t d_window_slow = 2);
+        //PID_Controller(double p = 0, double i = 0, double d = 0, double i_max_change = 9999999, int32_t d_window_fast = 1, int32_t d_window_slow = 2);
 
         //Destructor
         ~PID_Controller();
 
         //Methods
-        float update(const float &measurement, const float &reference);
+        double update(const double &error);
+        double update(const double &measurement, const double &reference);
 };
 
 struct pid_pair

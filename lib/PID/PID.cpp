@@ -2,8 +2,8 @@
 
 //TODO:write more comments
 
-pid_config::pid_config(float p, float i, float d, 
-                       float i_max_change_per_cycle, 
+pid_config::pid_config(double p, double i, double d, 
+                       double i_max_change_per_cycle, 
                        uint32_t d_window_fast, uint32_t d_window_slow)
     : p(p), i(i), d(d)
     , i_max_change_per_cycle(i_max_change_per_cycle)
@@ -32,7 +32,7 @@ PID_Controller::PID_Controller(pid_config config)
         error_rolling_window_slow = config.d_window_slow;
     }
 
-    errors = new float[error_rolling_window_slow];
+    errors = new double[error_rolling_window_slow];
     //There has to be a better way to initialize to 0
     for (uint32_t i = 0; i < error_rolling_window_slow; i++)  
         errors[i] = 0.0f;
@@ -45,10 +45,8 @@ PID_Controller::~PID_Controller()
 }
 
 //Methods
-float PID_Controller::update(const float &measurement, const float &reference)
+double PID_Controller::update(const double &error)
 {
-    float error = measurement - reference;
-    
     //Calculate p_term
     p_term = -error * p;
 
@@ -86,6 +84,11 @@ float PID_Controller::update(const float &measurement, const float &reference)
 
     //Return result
     return p_term + i_term + d_term;
+}
+
+double PID_Controller::update(const double &measurement, const double &reference)
+{
+    return update(measurement - reference);
 }
 
 pid_pair::pid_pair(pid_config waste, pid_config torque)

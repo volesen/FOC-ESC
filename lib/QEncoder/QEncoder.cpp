@@ -90,7 +90,7 @@ void IRAM_ATTR QEncoder::handle_interrupt(QEncoder* const encoder)
 }
 
 void QEncoder::reset_virtual_position() { virtual_position = 0; }
-void QEncoder::reset_axis_position() { axis_position = 0; }
+void QEncoder::reset_axis_position() { axis_position = DEFAULT_START_POSITION; }
 
 char QEncoder::get_pin_interrupt() const { return pin_interrupt; }
 char QEncoder::get_pin_secondary() const { return pin_secondary;}

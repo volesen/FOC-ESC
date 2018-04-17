@@ -88,6 +88,22 @@ void setup()
     // }
 }
 
+int32_t calculate_position_error(uint32_t const &measurement, uint32_t const &reference, bool direction)
+{
+    uint32_t magnitude = direction
+                        ? reference - measurement
+                        : measurement - reference;
+    magnitude = magnitude % 16;
+    bool overflow = direction
+                   ? reference < measurement
+                   : measurement < reference;
+
+    if (overflow)
+        return (int32_t)magnitude * (reference > measurement ? -1 : 1);
+    else
+        return (int32_t)magnitude * (reference > measurement ? -1 : 1);
+}
+
 void loop() 
 {
     ESC::get().update();
@@ -104,7 +120,6 @@ void loop()
     // Serial.println((149 & 63) | ((90 & 63) << 6));
     delay(16);
     
-
     // digitalWrite(1, HIGH);
     // delay(500);
     // digitalWrite(1, LOW);

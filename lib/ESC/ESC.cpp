@@ -9,11 +9,7 @@
 #include "PWM.hpp"
 #include "Transform.hpp"
 
-#define OPEN_LOOP_DEBUG_MODE 1
-
 #define VIRTUAL_POSITION_RESET_TIME_MS 500
-
-#define POSITION_CHANGE_SCALER 7
 
 const pid_config waste(0.3, //P
                        0.2, //I
@@ -36,9 +32,17 @@ ESC::ESC()
     //Initailize classes to interact with hardware
     initialize_classes();
 
-    //Align rotors so that virtual position is known
     for (uint8_t motor = 0; motor < NUM_MOTORS; motor++)
+    {
+        // Align rotors so that virtual position is known
         reset_rotor_virtual_position((motor_id)motor);
+
+        // Zero position so that physical position is aligned with axis_position field
+        reset_axis_position((motor_id)motor);
+
+        //Set initial target_position to 0
+        target_position[motor] = DEFAULT_START_POSITION;
+    }
 }
 
 void ESC::initialize_classes()
@@ -85,12 +89,20 @@ void ESC::reset_rotor_virtual_position(motor_id motor)
         PWM::get(motor).set_phases_low();
 }
 
+void ESC::reset_axis_position(motor_id motor)
+{
+    //TODO: Implement initial zeroing procedure
+
+    //Reset axis position field in QEncoder class
+    QEncoder::get(motor).reset_axis_position();
+}
+
 #pragma endregion
 
 ESC& ESC::get() { static ESC instance{}; return instance; }
 void ESC::initialize() { get(); }
 
-#if OPEN_LOOP_DEBUG_MODE == 0
+#if DEBUG_MODE == 0
 void ESC::update()
 {
     for (uint8_t id = 0; id < NUM_MOTORS; id++)
@@ -108,20 +120,29 @@ void ESC::update()
         //Get virtual angle of rotor
         uint32_t virtual_angle = QEncoder::get(motor)
                                           .get_virtual_position();
-        
-        //Get throttle including direction
-        float throttle = ESC_Serial::get().get_throttle(motor) * THROTTLE_SCALER;
 
-        //Stage update of position to ESC_Serial
-        ESC_Serial::get().update_position(motor, QEncoder::get(motor)
-                                                          .get_axis_position());
+        //Get axis position of motor
+        uint32_t position = QEncoder::get(motor)
+                                     .get_axis_position();
+
+        //Stage update of axis position to ESC_Serial
+        ESC_Serial::get()
+                   .update_position(motor, position);
+        
+        //Update target position
+        if (ESC_Serial::get().ask_updated(motor))
+            target_position[motor] = position + ESC_Serial::get().get_position_change(motor);
 
         //Transform phases to rotating reference frame
         Idq waste_torque = Transform::de_phase(virtual_angle, phases);
 
         //Update PI-loops
-        waste_torque.d += PID::get(motor).waste.update(waste_torque.d, 0);
-        waste_torque.q += PID::get(motor).torque.update(waste_torque.q, throttle);
+        waste_torque.d = PID::get(motor).waste.update(waste_torque.d, 0);
+        // This is not overflow safe. 
+        // Position and relative position control is inherently flawed against overflow.
+        // General protection will ruin the PID-loop.
+        // Everything works without overflow protection, though, as long as no overflows happen.
+        waste_torque.q = PID::get(motor).torque.update(position, target_position[motor]);
         
         //Transform rotating reference frame to phases
         phases = Transform::to_phase(virtual_angle, waste_torque);
@@ -130,7 +151,7 @@ void ESC::update()
         PWM::get(motor).set_phases(phases);
     }
 }
-#elif OPEN_LOOP_DEBUG_MODE == 1
+#elif DEBUG_MODE == 1
 void ESC::update()
 {
     static uint16_t virtual_angle = 0;

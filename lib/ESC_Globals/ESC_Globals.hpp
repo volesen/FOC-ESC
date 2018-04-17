@@ -1,5 +1,9 @@
 #pragma once
 
+#define DEBUG_MODE 0
+
+#define DEFAULT_START_POSITION 2147483647       // MAX_UINT32_T / 2 -1
+
 #define ONE_ROTATION_STEPS 2048	            // 2048 steps per mechanical rotation
 #define ONE_VIRTUAL_ROTATION_STEPS 342		// ceil(ONE_ROTATION_STEPS / 6) (6 = pole pair count)
 
