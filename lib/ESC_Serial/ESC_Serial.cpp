@@ -148,7 +148,7 @@ bool ESC_Serial::update_scope_buffer()
     //No change if there is nothing to read
     if (rx_buffer_available == 0)
         return false;
-    
+
     //Initialize num_bytes_to_read with if statements
     uint8_t num_bytes_to_read;
     //If scope_buffer already full (previous transmission invalid)
@@ -193,15 +193,14 @@ void ESC_Serial::process_transmission()
 
     //First data packet contains the lower order position_change
     //Second data packet contains the higher order position_change
-    _position_change[target_motor] = (int16_t)(GET_POSITION_CHANGE_BITS(scope_buffer[PDATA0]) |
-                                              (GET_POSITION_CHANGE_BITS(scope_buffer[PDATA1]) << 6))
-                                     //Make negative if CW direction)
-                                   * (GET_DIRECTION_BIT(scope_buffer[PMASTER] ? 1 : -1)); 
-
+    _position_change[target_motor] = (GET_POSITION_CHANGE_BITS(scope_buffer[PDATA0]) |
+                                     (GET_POSITION_CHANGE_BITS(scope_buffer[PDATA1]) << 6))
+                                     * (GET_DIRECTION_BIT(scope_buffer[PMASTER]) ? 1 : -1);
+    
     //Set update status so external code knows.
     //All get properties have been updated, so get_position_change is ready now.
     _updated[target_motor] = true;
-
+    
     //If controller requests current position
     if (GET_POS_REQ_BIT(scope_buffer[PMASTER]))
     {
@@ -280,7 +279,7 @@ int32_t ESC_Serial::get_position_change(motor_id motor)
     //accidentally adding the relative position change again,
     //causing the movement to be twice as large as expected.
     int32_t position_change = _position_change[motor];
-
+    
     if (_updated[motor])
         _updated[motor] = false;
 
